@@ -5,265 +5,257 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quiz Master</title>
-
 <style>
-* {
-    box-sizing: border-box;
-}
-
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #101027, #25255a);
+    background: linear-gradient(135deg, #10172a, #253b70);
     color: white;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.container {
-    background: #191936;
-    padding: 35px;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 500px;
     text-align: center;
-    box-shadow: 0 10px 40px #0008;
+    padding: 30px 15px;
 }
-
-h1 {
-    color: #8b83ff;
-    font-size: 32px;
+.game {
+    background: #202c48;
+    max-width: 550px;
+    margin: 30px auto;
+    padding: 25px;
+    border-radius: 18px;
 }
-
-#question {
-    font-size: 21px;
-    margin: 25px 0;
-}
-
-.answers {
-    display: grid;
-    gap: 12px;
-}
-
+h1 { color: #65d6ff; }
 button {
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: 0.2s;
-}
-
-.answer-btn {
-    background: #30305c;
-    color: white;
-}
-
-.answer-btn:hover:not(:disabled) {
-    background: #6259d9;
-    transform: scale(1.02);
-}
-
-button:disabled {
-    cursor: default;
-}
-
-#next, #restart {
-    background: #766bff;
-    color: white;
-    margin-top: 22px;
+    display: block;
     width: 100%;
+    padding: 13px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 9px;
+    background: #4267d5;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
 }
-
-#next:hover, #restart:hover {
-    background: #5549db;
-}
-
-#score {
-    color: #a69eff;
-    font-weight: bold;
-    margin-top: 20px;
-}
-
-#progress {
-    color: #aaa;
-    font-size: 14px;
-}
-
-#result {
-    font-size: 24px;
-    margin: 25px 0;
-}
+button:hover { background: #6086f5; }
+button:disabled { cursor: default; opacity: 0.8; }
+#feedback { min-height: 25px; font-weight: bold; }
+#next { background: #159b68; }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
-    <h1>⚡ QUIZ MASTER</h1>
-
-    <p id="progress">Question 1 / 5</p>
-
+<div class="game">
+    <h1>QUIZ MASTER</h1>
+    <h3 id="level">Level 1 / 30</h3>
+    <p id="progress">Question 1 / 25</p>
     <h2 id="question">Loading...</h2>
-
-    <div class="answers" id="answers"></div>
-
+    <div id="answers"></div>
+    <p id="feedback"></p>
     <p id="score">Score: 0</p>
-
-    <button id="next" onclick="nextQuestion()" hidden>
-        Next Question
-    </button>
-
-    <div id="result"></div>
-
-    <button id="restart" onclick="restartGame()" hidden>
-        Play Again
-    </button>
-
+    <button id="next" onclick="nextQuestion()" disabled>Next</button>
 </div>
 
 <script>
+const levels = [];
 
-const questions = [
-    {
-        question: "What is the capital of France?",
-        answers: ["London", "Paris", "Madrid", "Rome"],
-        correct: "Paris"
-    },
-    {
-        question: "Which planet is known as the Red Planet?",
-        answers: ["Earth", "Jupiter", "Mars", "Venus"],
-        correct: "Mars"
-    },
-    {
-        question: "How many days are in a week?",
-        answers: ["5", "6", "7", "8"],
-        correct: "7"
-    },
-    {
-        question: "Which language is used to style websites?",
-        answers: ["HTML", "CSS", "Python", "Java"],
-        correct: "CSS"
-    },
-    {
-        question: "What is 10 x 10?",
-        answers: ["50", "100", "200", "10"],
-        correct: "100"
+function makeQuestion(a, b, operation, symbol) {
+    let answer;
+
+    if (operation === "+") answer = a + b;
+    if (operation === "-") answer = a - b;
+    if (operation === "*") answer = a * b;
+    if (operation === "/") answer = a / b;
+
+    let wrong = [
+        answer + 3,
+        answer - 2,
+        answer + 5
+    ];
+
+    wrong = wrong.filter(x => x !== answer && Number.isFinite(x));
+    wrong = [...new Set(wrong)].slice(0, 3);
+
+    while (wrong.length < 3) {
+        wrong.push(answer + wrong.length + 7);
     }
-];
 
+    let answers = [answer, ...wrong];
+
+    // Randomize answer positions
+    answers.sort(() => Math.random() - 0.5);
+
+    return {
+        question: `${a} ${symbol} ${b} = ?`,
+        answers: answers.map(String),
+        correct: String(answer)
+    };
+}
+
+// Create 30 levels with 25 questions each
+for (let level = 1; level <= 30; level++) {
+    let questions = [];
+
+    for (let i = 0; i < 25; i++) {
+        let a, b, operation, symbol;
+
+        if (level <= 5) {
+            a = level * 10 + i + 5;
+            b = i + 2;
+            operation = "+";
+            symbol = "+";
+        } 
+        else if (level <= 10) {
+            a = level + i + 2;
+            b = level + 2;
+            operation = "*";
+            symbol = "×";
+        } 
+        else if (level <= 15) {
+            b = level + 2;
+            a = b * (i + 2);
+            operation = "/";
+            symbol = "÷";
+        } 
+        else if (level <= 20) {
+            a = level * 3 + i;
+            b = level + i + 1;
+            operation = "-";
+            symbol = "-";
+        } 
+        else if (level <= 25) {
+            a = level + i;
+            operation = "*";
+            b = a;
+            symbol = "×";
+        } 
+        else {
+            a = (level - 25) * 10 + i * 5 + 20;
+            b = 10;
+            operation = "*";
+            symbol = "×";
+        }
+
+        questions.push(makeQuestion(a, b, operation, symbol));
+    }
+
+    levels.push({
+        name: "Level " + level,
+        questions: questions
+    });
+}
+
+let currentLevel = 0;
 let currentQuestion = 0;
 let score = 0;
 let answered = false;
 
 function showQuestion() {
-
     answered = false;
 
-    const q = questions[currentQuestion];
+    const q = levels[currentLevel].questions[currentQuestion];
 
-    document.getElementById("question").textContent = q.question;
+    document.getElementById("level").textContent =
+        `Level ${currentLevel + 1} / 30`;
 
     document.getElementById("progress").textContent =
-        `Question ${currentQuestion + 1} / ${questions.length}`;
+        `Question ${currentQuestion + 1} / 25`;
 
-    document.getElementById("score").textContent =
-        "Score: " + score;
-
-    document.getElementById("next").hidden = true;
+    document.getElementById("question").textContent = q.question;
+    document.getElementById("feedback").textContent = "";
+    document.getElementById("next").disabled = true;
+    document.getElementById("next").textContent = "Next";
 
     const answersDiv = document.getElementById("answers");
     answersDiv.innerHTML = "";
 
     q.answers.forEach(answer => {
-
         const button = document.createElement("button");
-
         button.textContent = answer;
-        button.className = "answer-btn";
 
         button.onclick = () => checkAnswer(answer, button);
 
         answersDiv.appendChild(button);
-
-    });
-}
-
-function checkAnswer(answer, button) {
-
-    if (answered) return;
-
-    answered = true;
-
-    const correct = questions[currentQuestion].correct;
-
-    if (answer === correct) {
-        score += 10;
-        button.style.background = "#16864b";
-    } else {
-        button.style.background = "#bd3838";
-    }
-
-    document.querySelectorAll(".answer-btn").forEach(btn => {
-        btn.disabled = true;
-
-        if (btn.textContent === correct) {
-            btn.style.background = "#16864b";
-        }
     });
 
     document.getElementById("score").textContent =
         "Score: " + score;
+}
 
-    if (currentQuestion < questions.length - 1) {
-        document.getElementById("next").hidden = false;
+function checkAnswer(answer, selectedButton) {
+    if (answered) return;
+
+    answered = true;
+
+    const q = levels[currentLevel].questions[currentQuestion];
+    const buttons = document.querySelectorAll("#answers button");
+
+    buttons.forEach(button => {
+        button.disabled = true;
+
+        if (button.textContent === q.correct) {
+            button.style.background = "#159b68";
+        }
+    });
+
+    if (answer === q.correct) {
+        score++;
+        document.getElementById("feedback").textContent =
+            "Correct! +1 point";
     } else {
-        finishGame();
+        document.getElementById("feedback").textContent =
+            "Wrong! Correct answer: " + q.correct;
+        selectedButton.style.background = "#c43d50";
     }
+
+    document.getElementById("score").textContent =
+        "Score: " + score;
+
+    document.getElementById("next").disabled = false;
 }
 
 function nextQuestion() {
-
     currentQuestion++;
 
-    showQuestion();
+    if (currentQuestion >= 25) {
+        finishLevel();
+    } else {
+        showQuestion();
+    }
 }
 
-function finishGame() {
-
+function finishLevel() {
     document.getElementById("question").textContent =
-        "Quiz Completed! 🎉";
-
-    document.getElementById("progress").textContent =
-        "All questions answered";
+        "Level " + (currentLevel + 1) + " completed!";
 
     document.getElementById("answers").innerHTML = "";
+    document.getElementById("feedback").textContent =
+        "Your total score: " + score;
 
-    document.getElementById("next").hidden = true;
+    const next = document.getElementById("next");
 
-    document.getElementById("result").textContent =
-        "Your final score: " + score + " / 50";
-
-    document.getElementById("restart").hidden = false;
+    if (currentLevel === 29) {
+        next.textContent = "Finish Game";
+        next.onclick = () => {
+            document.getElementById("question").textContent =
+                "YOU COMPLETED ALL 30 LEVELS!";
+            document.getElementById("feedback").textContent =
+                "Final score: " + score + " / 750";
+            next.style.display = "none";
+        };
+    } else {
+        next.textContent = "Next Level";
+        next.onclick = nextLevel;
+    }
 }
 
-function restartGame() {
-
+function nextLevel() {
+    currentLevel++;
     currentQuestion = 0;
-    score = 0;
 
-    document.getElementById("result").textContent = "";
-    document.getElementById("restart").hidden = true;
+    const next = document.getElementById("next");
+    next.onclick = nextQuestion;
 
     showQuestion();
 }
 
 showQuestion();
-
 </script>
 
 </body>
