@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Master</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #101027, #25255a);
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: #191936;
+    padding: 35px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 10px 40px #0008;
+}
+
+h1 {
+    color: #8b83ff;
+    font-size: 32px;
+}
+
+#question {
+    font-size: 21px;
+    margin: 25px 0;
+}
+
+.answers {
+    display: grid;
+    gap: 12px;
+}
+
+button {
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.answer-btn {
+    background: #30305c;
+    color: white;
+}
+
+.answer-btn:hover:not(:disabled) {
+    background: #6259d9;
+    transform: scale(1.02);
+}
+
+button:disabled {
+    cursor: default;
+}
+
+#next, #restart {
+    background: #766bff;
+    color: white;
+    margin-top: 22px;
+    width: 100%;
+}
+
+#next:hover, #restart:hover {
+    background: #5549db;
+}
+
+#score {
+    color: #a69eff;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+#progress {
+    color: #aaa;
+    font-size: 14px;
+}
+
+#result {
+    font-size: 24px;
+    margin: 25px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>⚡ QUIZ MASTER</h1>
+
+    <p id="progress">Question 1 / 5</p>
+
+    <h2 id="question">Loading...</h2>
+
+    <div class="answers" id="answers"></div>
+
+    <p id="score">Score: 0</p>
+
+    <button id="next" onclick="nextQuestion()" hidden>
+        Next Question
+    </button>
+
+    <div id="result"></div>
+
+    <button id="restart" onclick="restartGame()" hidden>
+        Play Again
+    </button>
+
+</div>
+
+<script>
+
+const questions = [
+    {
+        question: "What is the capital of France?",
+        answers: ["London", "Paris", "Madrid", "Rome"],
+        correct: "Paris"
+    },
+    {
+        question: "Which planet is known as the Red Planet?",
+        answers: ["Earth", "Jupiter", "Mars", "Venus"],
+        correct: "Mars"
+    },
+    {
+        question: "How many days are in a week?",
+        answers: ["5", "6", "7", "8"],
+        correct: "7"
+    },
+    {
+        question: "Which language is used to style websites?",
+        answers: ["HTML", "CSS", "Python", "Java"],
+        correct: "CSS"
+    },
+    {
+        question: "What is 10 x 10?",
+        answers: ["50", "100", "200", "10"],
+        correct: "100"
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+function showQuestion() {
+
+    answered = false;
+
+    const q = questions[currentQuestion];
+
+    document.getElementById("question").textContent = q.question;
+
+    document.getElementById("progress").textContent =
+        `Question ${currentQuestion + 1} / ${questions.length}`;
+
+    document.getElementById("score").textContent =
+        "Score: " + score;
+
+    document.getElementById("next").hidden = true;
+
+    const answersDiv = document.getElementById("answers");
+    answersDiv.innerHTML = "";
+
+    q.answers.forEach(answer => {
+
+        const button = document.createElement("button");
+
+        button.textContent = answer;
+        button.className = "answer-btn";
+
+        button.onclick = () => checkAnswer(answer, button);
+
+        answersDiv.appendChild(button);
+
+    });
+}
+
+function checkAnswer(answer, button) {
+
+    if (answered) return;
+
+    answered = true;
+
+    const correct = questions[currentQuestion].correct;
+
+    if (answer === correct) {
+        score += 10;
+        button.style.background = "#16864b";
+    } else {
+        button.style.background = "#bd3838";
+    }
+
+    document.querySelectorAll(".answer-btn").forEach(btn => {
+        btn.disabled = true;
+
+        if (btn.textContent === correct) {
+            btn.style.background = "#16864b";
+        }
+    });
+
+    document.getElementById("score").textContent =
+        "Score: " + score;
+
+    if (currentQuestion < questions.length - 1) {
+        document.getElementById("next").hidden = false;
+    } else {
+        finishGame();
+    }
+}
+
+function nextQuestion() {
+
+    currentQuestion++;
+
+    showQuestion();
+}
+
+function finishGame() {
+
+    document.getElementById("question").textContent =
+        "Quiz Completed! 🎉";
+
+    document.getElementById("progress").textContent =
+        "All questions answered";
+
+    document.getElementById("answers").innerHTML = "";
+
+    document.getElementById("next").hidden = true;
+
+    document.getElementById("result").textContent =
+        "Your final score: " + score + " / 50";
+
+    document.getElementById("restart").hidden = false;
+}
+
+function restartGame() {
+
+    currentQuestion = 0;
+    score = 0;
+
+    document.getElementById("result").textContent = "";
+    document.getElementById("restart").hidden = true;
+
+    showQuestion();
+}
+
+showQuestion();
+
+</script>
+
+</body>
+</html>
