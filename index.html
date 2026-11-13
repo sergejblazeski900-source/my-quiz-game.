@@ -2,159 +2,128 @@
 <html lang="mk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quiz Master Ultimate</title>
 <style>
 :root{--bg:#10172a;--panel:#202c48;--blue:#4267d5;--cyan:#65d6ff;--green:#159b68;--red:#c43d50}
 *{box-sizing:border-box}
-body{margin:0;padding:22px 14px;font-family:Arial,sans-serif;background:linear-gradient(135deg,#10172a,#253b70);color:#fff;text-align:center}
-.wrap{max-width:850px;margin:auto}
-.game{background:var(--panel);max-width:720px;margin:18px auto;padding:24px;border-radius:18px;box-shadow:0 18px 50px #0005}
+body{margin:0;padding:22px 14px;font-family:Arial,sans-serif;background:linear-gradient(135deg,#10172a,#253b70);color:white;text-align:center}
+.wrap{max-width:900px;margin:auto}
+.game{background:var(--panel);max-width:780px;margin:18px auto;padding:24px;border-radius:18px;box-shadow:0 18px 50px #0005}
 h1{color:var(--cyan);margin:5px}
-button,input{font:inherit}
-button{display:block;width:100%;padding:13px;margin:9px 0;border:0;border-radius:9px;background:var(--blue);color:white;font-size:16px;font-weight:bold;cursor:pointer}
-button:hover{background:#6086f5}
-button:disabled{cursor:default;opacity:.55}
-button.secondary{background:#354568}
-button.green{background:var(--green)}
-input{width:100%;padding:13px;margin:7px 0 12px;border:1px solid #52658f;border-radius:9px;background:#121d35;color:white}
+button{font:inherit;display:block;width:100%;padding:13px;margin:9px 0;border:0;border-radius:9px;background:var(--blue);color:white;font-size:16px;font-weight:bold;cursor:pointer}
+button:hover{filter:brightness(1.15)}
+button:disabled{opacity:.5;cursor:default}
+.secondary{background:#354568}
+.green{background:var(--green)}
+.hidden{display:none!important}
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}
 .row button{margin:0}
-.hidden{display:none!important}
-#feedback{min-height:25px;font-weight:bold}
-.muted{color:#bdc9e4}
 .stat{background:#17233d;padding:12px;border-radius:10px}
-.levelgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:7px;max-height:360px;overflow:auto;padding:4px}
+.muted,small{color:#bdc9e4}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.levelgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(65px,1fr));gap:7px;max-height:390px;overflow:auto;padding:4px}
 .levelgrid button{padding:10px 3px;font-size:13px;margin:0}
-.done{background:#137c5a!important}
-.locked{background:#354056!important}
+.done{background:#137c5a}
+.locked{background:#354056}
 .answer{background:#354568;text-align:left}
 .answer.correct{background:#159b68}
 .answer.wrong{background:#c43d50}
 .progress{height:8px;background:#121d35;border-radius:20px;overflow:hidden;margin:12px 0}
 .progress span{display:block;height:100%;background:var(--cyan);width:0}
-.picture{font-size:100px;background:#17233d;border-radius:14px;padding:22px;margin:12px 0}
-small{color:#bdc9e4}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#feedback{min-height:25px;font-weight:bold}
+#question{line-height:1.4}
+.category{display:inline-block;background:#354568;padding:7px 12px;border-radius:20px;color:var(--cyan);font-size:13px}
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <div class="top">
-<h1>QUIZ MASTER ULTIMATE</h1>
-<span id="who" class="muted">Гостин</span>
+<h1>🧠 QUIZ MASTER ULTIMATE</h1>
+<span class="muted">500 нивоа · 7.500 прашања по играње</span>
 </div>
 
-<section id="auth" class="game">
-<h2>Добредојде!</h2>
-<p class="muted">Најави се или креирај локален профил.</p>
-<input id="username" placeholder="Корисничко име" maxlength="20">
-<input id="password" type="password" placeholder="Лозинка (најмалку 4 знаци)">
-<div class="row">
-<button onclick="register()">Register</button>
-<button class="secondary" onclick="login()">Login</button>
-</div>
-<p id="authmsg"></p>
-<small>Оваа верзија чува профил на истиот уред. За вистински online профили потребен е backend.</small>
-</section>
-
-<section id="home" class="game hidden">
-<h2>Главно мени</h2>
+<section id="home" class="game">
+<h2>Избери ниво</h2>
+<p class="muted">Секое ниво има 15 прашања. Потребни се најмалку 12 точни одговори за да го отклучиш следното ниво.</p>
 <div class="row">
 <div class="stat">⭐ Поени: <b id="points">0</b></div>
-<div class="stat">🏅 Победи: <b id="wins">0</b></div>
-<div class="stat">🎯 Завршени нивоа: <b id="done">0</b></div>
+<div class="stat">🏆 Завршени нивоа: <b id="completed">0</b></div>
 </div>
-<div class="row" style="margin-top:15px">
-<button onclick="showPanel('levels')">500 нивоа</button>
-<button onclick="showPanel('tournament')">1v1 турнир</button>
-<button class="secondary" onclick="logout()">Одјави се</button>
-</div>
+<div id="levelgrid" class="levelgrid" style="margin-top:16px"></div>
+<button class="secondary" onclick="resetProgress()">Ресетирај напредок</button>
 </section>
 
-<section id="levels" class="game hidden">
-<h2>Избери ниво</h2>
-<p class="muted">Секое ниво има 15 прашања. Нивоата се отклучуваат по ред.</p>
-<div id="levelgrid" class="levelgrid"></div>
-<button class="secondary" onclick="goHome()">Назад</button>
-</section>
-
-<section id="tournament" class="game hidden">
-<h2>Турнир 1v1</h2>
-<p class="muted">Двајца играчи одговараат на истиот уред, наизменично.</p>
-<div class="row">
-<button onclick="startTournament(20)">20 прашања</button>
-<button onclick="startTournament(30)">30 прашања</button>
-<button onclick="startTournament(40)">40 прашања</button>
-</div>
-<p id="tournote" class="muted"></p>
-<button class="secondary" onclick="goHome()">Назад</button>
-</section>
-
-<section id="game" class="game hidden">
+<section id="quiz" class="game hidden">
 <div class="top">
-<b id="mode">Level 1</b>
+<b id="levelname">Ниво 1</b>
 <span id="counter">Прашање 1/15</span>
 </div>
 <div class="progress"><span id="bar"></span></div>
-<div id="picture" class="picture hidden"></div>
-<h2 id="question">Прашање</h2>
+<span class="category" id="category"></span>
+<h2 id="question"></h2>
 <div id="answers"></div>
 <p id="feedback"></p>
-<p id="score">Поени: 0</p>
-<button id="next" class="green" onclick="nextQuestion()" disabled>Следно</button>
+<p id="score">Точни одговори: 0</p>
+<button id="next" class="green" onclick="nextQuestion()" disabled>Следно прашање</button>
+<button class="secondary" onclick="backHome()">Излез кон мени</button>
 </section>
 
 <section id="result" class="game hidden">
 <h2 id="resulttitle">Резултат</h2>
 <h1 id="resultscore"></h1>
 <p id="resulttext" class="muted"></p>
-<button onclick="goHome()">Главно мени</button>
+<button onclick="backHome()">Назад кон нивоата</button>
 </section>
 
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
+const TOTAL_LEVELS=500, PER_LEVEL=15, PASS_SCORE=12;
 
-const categories={
-"Географија":[
-["Кој е главен град на Австралија?","Канбера",["Сиднеј","Мелбурн","Перт"]],
-["Која држава има форма на чизмица?","Италија",["Шпанија","Грција","Португалија"]],
-["Кој е најголемиот океан?","Тихи Океан",["Атлантски","Индиски","Арктички"]],
-["Во која држава е Мачу Пикчу?","Перу",["Чиле","Мексико","Боливија"]],
-["Кој град ја има Ајфеловата кула?","Париз",["Рим","Лондон","Берлин"]],
-["Која е најголема држава по површина?","Русија",["Канада","Кина","САД"]],
-["Кој е главен град на Јапонија?","Токио",["Кјото","Осака","Нагоја"]],
-["Кој е главен град на Канада?","Отава",["Торонто","Ванкувер","Монтреал"]],
-["На кој континент е Египет?","Африка",["Азија","Европа","Јужна Америка"]],
-["Која држава е позната по фјордови?","Норвешка",["Белгија","Унгарија","Полска"]]
-],
-"Наука":[
-["Која планета е Црвената планета?","Марс",["Венера","Јупитер","Меркур"]],
-["Кој гас го апсорбираат растенијата?","Јаглерод диоксид",["Кислород","Азот","Водород"]],
-["Колку коски има возрасен човек приближно?","206",["186","216","226"]],
-["Кој е хемискиот симбол за злато?","Au",["Ag","Gd","Go"]],
-["Која е најблиската ѕвезда до Земјата?","Сонцето",["Сириус","Вега","Поларна ѕвезда"]],
-["Кој орган пумпа крв?","Срцето",["Белите дробови","Црниот дроб","Бубрезите"]],
-["Која сила нè држи на Земјата?","Гравитација",["Магнетизам","Триење","Електрицитет"]]
-],
-"Историја":[
-["Во која година завршила Втората светска војна?","1945",["1939","1942","1950"]],
-["Кој бил првиот човек на Месечината?","Нил Армстронг",["Јуриј Гагарин","Баз Олдрин","Мајкл Колинс"]],
-["Која цивилизација ги изградила пирамидите во Гиза?","Старите Египќани",["Римјаните","Маите","Персијците"]],
-["Каде започнале античките Олимписки игри?","Олимпија",["Атина","Спарта","Коринт"]]
-],
-"Спорт":[
-["Колку играчи има фудбалски тим на терен?","11",["9","10","12"]],
-["Колку прстени има олимпискиот симбол?","5",["4","6","7"]],
-["На која подлога се игра Вимблдон?","Трева",["Земја","Тврда подлога","Песок"]]
-],
-"Природа":[
-["Кое е најголемото копнено животно?","Африкански слон",["Носорог","Жирафа","Нилски коњ"]],
-["Кое животно има црно-бели ленти?","Зебра",["Тигар","Окапи","Лемур"]],
-["Кое е најголемото животно на планетата?","Синиот кит",["Слон","Кит-убиец","Кит-ајкула"]]
-],
-"Култура":[
-["Кој ја напишал „Ромео и Јулија“?","Вилијам Шекспир",["Чарлс
+const questions=[
+["Географија","Која е највисоката планина во Африка?","Килиманџаро",["Кенија","Атлас","Дракенсберг"]],
+["Географија","Која река поминува низ Будимпешта?","Дунав",["Раjна","Сена","Темза"]],
+["Географија","Која е најголемата пустина во светот?","Антарктичката пустина",["Сахара","Гоби","Калахари"]],
+["Географија","Која држава има најмногу жители во светот?","Индија",["Кина","САД","Индонезија"]],
+["Географија","Кој е главен град на Нов Зеланд?","Велингтон",["Окленд","Крајстчерч","Сиднеј"]],
+["Географија","Кое езеро е најдлабоко во светот?","Бајкалско Езеро",["Охридско Езеро","Викторија","Тангањика"]],
+["Географија","Во која држава се наоѓа градот Маракеш?","Мароко",["Египет","Тунис","Алжир"]],
+["Географија","Кој е најмалиот континент?","Австралија",["Европа","Антарктик","Јужна Америка"]],
+["Географија","Кој е главен град на Исланд?","Рејкјавик",["Осло","Хелсинки","Стокхолм"]],
+["Географија","Кој теснец ги разделува Европа и Африка?","Гибралтарскиот теснец",["Босфор","Ла Манш","Дарданели"]],
+
+["Математика","Колку е 17 × ัญ?","",[]],
+["Математика","Колку е квадратниот корен од 225?","15",["12","18","25"]],
+["Математика","Колку е 15% од 240?","36",["24","30","40"]],
+["Математика","Реши: 3x + 7 = 28. Колку е x?","7",["5","6","9"]],
+["Математика","Колку степени има збирот на внатрешните агли на триаголник?","180°",["90°","270°","360°"]],
+["Математика","Колку е 2⁵?","32",["16","25","64"]],
+["Математика","Кој е прост број?","29",["21","27","33"]],
+["Математика","Колку е 7/8 во децимален запис?","0,875",["0,78","0,85","0,95"]],
+["Математика","Ако производ е 80 денари и попустот е 25%, колку чини?","60 денари",["55 денари","65 денари","70 денари"]],
+["Математика","Колку е 12² − 10²?","44",["24","40","48"]],
+
+["Спорт","Колку минути трае едно стандардно фудбалско полувреме?","45",["40","50","60"]],
+["Спорт","Во кој спорт се користи терминот „грен слем“?","Тенис",["Кошарка","Одбојка","Ракомет"]],
+["Спорт","Колку играчи од еден тим се на терен во кошарка?","5",["6","7","11"]],
+["Спорт","Која земја го освои Светското првенство во фудбал во 2022?","Аргентина",["Франција","Бразил","Хрватска"]],
+["Спорт","Колку километри е официјалниот маратон?","42,195 km",["40 km","41 km","45 km"]],
+["Спорт","Во кој спорт се изведува „сервис“ преку мрежа со рекет?","Тенис",["Бокс","Атлетика","Пливање"]],
+["Спорт","Колку прстени има олимпискиот симбол?","5",["4","6","7"]],
+["Спорт","Кој стил на пливање е познат и како слободен стил?","Крол",["Грбно","Градно","Пеперутка"]],
+
+["Историја","Во која година започнала Француската револуција?","1789",["1776","1812","1848"]],
+["Историја","Кој бил првиот човек во вселената?","Јуриј Гагарин",["Нил Армстронг","Алан Шепард","Баз Олдрин"]],
+["Историја","Која империја го изградила Колосеумот?","Римската империја",["Османлиската","Персиската","Византиската"]],
+["Историја","Во која година паднал Берлинскиот ѕид?","1989",["1985","1991","1979"]],
+["Историја","Кој бил познат македонски револуционер и водач?","Гоце Делчев",["Климент Охридски","Самоил","Методија Андонов-Ченто"]],
+["Историја","Кој владетел го основал Александрискиот град?","Александар Македонски",["Филип II","Перикле","Јулиј Цезар"]],
+["Историја","Која година започнала Првата светска војна?","1914",["1912","1916","1918"]],
+
+["Наука","Кој е хемискиот симбол за натриум?","Na",["N","Ni","Ne"]],
+["Наука","Колку хромозоми има обично човекот?","46",["42","44","48"]],
+["Наука","Која планета има најмногу познати прстени?","Сатурн",["Марс","Венера","Меркур"]],
+["Наука","Кој дел од клетката ја содржи н
