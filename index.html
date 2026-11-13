@@ -2,167 +2,162 @@
 <html lang="mk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quiz Master Ultimate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Master</title>
 <style>
-:root{
- --bg:#0b1020;--panel:#172440;--panel2:#203456;
- --blue:#4169e1;--cyan:#62dcff;--green:#13a875;
- --red:#d94b61;--gold:#ffc857;--text:#f5f7ff;--muted:#b8c7e5;
-}
 *{box-sizing:border-box}
-body{
- margin:0;min-height:100vh;padding:20px 13px;
- font-family:Arial,sans-serif;color:var(--text);
- background:radial-gradient(circle at top,#284c91 0,#111b35 48%,#090e1c 100%);
-}
-button{font:inherit;cursor:pointer;border:0}
-button:disabled{cursor:not-allowed;opacity:.55}
-.wrap{max-width:1050px;margin:auto}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-.logo{font-size:clamp(22px,4vw,34px);font-weight:900;color:var(--cyan);letter-spacing:1px}
-.tag{color:var(--muted);font-size:13px}
-.panel{
- background:linear-gradient(145deg,#1e3155,#172440);
- border:1px solid #ffffff16;border-radius:20px;padding:22px;
- margin:16px auto;box-shadow:0 16px 45px #0005;
-}
-h1,h2,h3{margin-top:5px}
-h2{font-size:25px}
-.muted{color:var(--muted);line-height:1.5}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
-.stat{background:#0e1a32;padding:15px 8px;border-radius:13px;font-weight:bold}
-.stat b{display:block;font-size:23px;color:var(--cyan);margin-top:5px}
-.btn{
- width:100%;padding:14px 12px;border-radius:11px;
- background:linear-gradient(135deg,#4169e1,#3153b6);
- color:white;font-size:16px;font-weight:bold;margin:6px 0;
- transition:.15s;
-}
-.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
-.btn.secondary{background:#344665}
-.btn.green{background:linear-gradient(135deg,#13a875,#087d5a)}
-.btn.red{background:#a9344b}
-.btn.gold{background:#a87920}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
-.levelgrid{
- display:grid;grid-template-columns:repeat(auto-fill,minmax(57px,1fr));
- gap:7px;max-height:430px;overflow:auto;padding:5px;
-}
-.level{
- padding:12px 3px;border-radius:9px;background:#344b73;color:white;
- font-weight:bold;font-size:14px;
-}
-.level.unlocked{background:#4169c9}
-.level.completed{background:#11845e}
-.level.locked{background:#26334b;color:#8794aa}
-.level:hover:not(:disabled){filter:brightness(1.2)}
-.hidden{display:none!important}
-.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.pill{display:inline-block;background:#31496f;padding:7px 12px;border-radius:30px;font-size:13px;color:#dceaff}
-.progress{height:10px;background:#0b1427;border-radius:20px;overflow:hidden;margin:15px 0}
-.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#48b8ff,#67f0e1);transition:width .2s}
-#question{font-size:clamp(19px,3vw,25px);line-height:1.4;margin:23px 0}
-.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.answer{
- min-height:58px;padding:13px;text-align:left;border-radius:11px;
- color:white;background:#344968;border:2px solid transparent;font-weight:bold;
-}
-.answer:hover:not(:disabled){background:#405c88}
-.answer.correct{background:#087c58;border-color:#4ce0a9}
-.answer.wrong{background:#a8324a;border-color:#ff8295}
-#feedback{min-height:28px;font-weight:bold;margin:15px 0}
-.playerturn{font-size:17px;font-weight:bold;color:var(--gold)}
-.categorylist{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:15px 0}
-.categorylist span{background:#263d64;border-radius:20px;padding:7px 10px;font-size:12px}
-.footer{text-align:center;font-size:12px;color:#9eacc8;margin:20px}
-@media(max-width:600px){
- body{padding:12px 8px}.panel{padding:15px}.stats{gap:6px}
- .stat{font-size:12px}.stat b{font-size:19px}
- .answers{grid-template-columns:1fr}.answer{min-height:50px}
-}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#10172e,#263b70);color:white;min-height:100vh;padding:18px}
+.container{max-width:800px;margin:20px auto;background:#192544;padding:25px;border-radius:22px;box-shadow:0 10px 35px #0006}
+h1{text-align:center;color:#ffd45c;font-size:34px}
+h2{text-align:center}
+p{text-align:center;color:#d5def5}
+button,input,select{font-size:17px;border:0;border-radius:12px;padding:14px;margin:6px}
+button{background:#ffc94d;color:#17213c;font-weight:bold;cursor:pointer}
+button:hover{filter:brightness(1.12)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.menu button{display:block;width:100%;margin:12px 0}
+.option{display:block;width:100%;background:#30466f;color:white;text-align:left}
+.option.correct{background:#168b59}
+.option.wrong{background:#b33d50}
+#screen{min-height:300px}
+.stats{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#101a33;padding:12px;border-radius:12px}
+.timer{height:12px;background:#405276;border-radius:10px;overflow:hidden;margin:15px 0}
+#timerBar{height:100%;background:#ffc94d;width:100%;transition:width .2s}
+.small{font-size:13px;color:#b8c7e8}
+.hidden{display:none}
+input{width:90%;max-width:350px}
 </style>
 </head>
 <body>
-<div class="wrap">
-
-<header>
- <div class="logo">⚡ QUIZ MASTER ULTIMATE</div>
- <div class="tag">500 НИВОА · 1v1 ТУРНИР · БЕЗ РЕГИСТРАЦИЈА</div>
-</header>
-
-<section id="home" class="panel">
- <h2>Добредојде во Quiz Master!</h2>
- <p class="muted">Тестирај го своето знаење, освојувај поени и отклучувај сè потешки нивоа.</p>
-
- <div class="stats">
-  <div class="stat">⭐ Поени<b id="points">0</b></div>
-  <div class="stat">🏆 Завршени нивоа<b id="completed">0</b></div>
-  <div class="stat">🔓 Отклучено<b id="unlocked">1 / 500</b></div>
- </div>
-
- <div class="grid">
-  <button class="btn" onclick="openLevels()">🎮 ИГРАЈ — 500 НИВОА</button>
-  <button class="btn gold" onclick="openTournament()">⚔️ 1v1 ТУРНИР</button>
- </div>
-
- <div class="categorylist">
-  <span>➗ Математика</span><span>🌍 Географија</span>
-  <span>⚽ Спорт</span><span>🔬 Наука</span>
-  <span>📚 Македонски</span><span>🇬🇧 Англиски</span>
-  <span>🏛️ Историја</span><span>🎨 Култура</span>
- </div>
- <p class="muted">Прогресот автоматски се зачувува на овој уред.</p>
- <button class="btn secondary" onclick="resetProgress()">Ресетирај прогрес</button>
-</section>
-
-<section id="levels" class="panel hidden">
- <div class="topline"><h2>Избери ниво</h2><span class="pill">500 нивоа</span></div>
- <p class="muted">Секое ниво има 15 прашања. Потребни се најмалку 12 точни одговори за да го отклучиш следното ниво.</p>
- <div id="levelgrid" class="levelgrid"></div>
- <button class="btn secondary" onclick="goHome()">← Назад</button>
-</section>
-
-<section id="tournament" class="panel hidden">
- <h2>⚔️ 1v1 Турнир</h2>
- <p class="muted">Двајца играчи играат наизменично на истиот уред. Победува играчот со повеќе точни одговори.</p>
- <div class="grid">
-  <button class="btn" onclick="startTournament(20)">20 прашања</button>
-  <button class="btn" onclick="startTournament(30)">30 прашања</button>
-  <button class="btn" onclick="startTournament(40)">40 прашања</button>
- </div>
- <button class="btn secondary" onclick="goHome()">← Назад</button>
-</section>
-
-<section id="quiz" class="panel hidden">
- <div class="topline">
-  <b id="gamemode">Ниво 1</b>
-  <span id="counter" class="pill">Прашање 1/15</span>
- </div>
- <div class="progress"><span id="bar"></span></div>
- <div id="turn" class="playerturn"></div>
- <div class="categorylist"><span id="category">Категорија</span></div>
- <h2 id="question">Прашање</h2>
- <div id="answers" class="answers"></div>
- <p id="feedback"></p>
- <div class="topline">
-  <span id="score" class="muted">Поени: 0</span>
-  <span id="correctcount" class="muted">Точни: 0</span>
- </div>
- <button id="next" class="btn green" onclick="nextQuestion()" disabled>Следно прашање →</button>
-</section>
-
-<section id="result" class="panel hidden">
- <h2 id="resulttitle">Резултат</h2>
- <h1 id="resultscore" style="color:var(--cyan);font-size:42px">0</h1>
- <p id="resulttext" class="muted"></p>
- <button class="btn" onclick="goHome()">Главно мени</button>
- <button id="retry" class="btn secondary hidden" onclick="retryLevel()">Играј повторно</button>
-</section>
-
-<div class="footer">QUIZ MASTER ULTIMATE · Забавувај се и учи!</div>
+<div class="container">
+<h1>🏆 QUIZ MASTER</h1>
+<div id="screen"></div>
 </div>
 
 <script>
-const $=id=>document.getElementById(id);
-const KEY='quizMasterUltimate
+const $ = id => document.getElementById(id);
+let level = 1, points = 0, questionIndex = 0, questions = [];
+let timeLeft = 25, timer = null, locked = false;
+let tournament = false, totalQuestions = 15;
+let players = [], playerScores = [0,0], currentPlayer = 0;
+let tournamentQuestions = [], tournamentIndex = 0;
+
+try {
+ const saved = JSON.parse(localStorage.getItem("quizMasterSave") || "{}");
+ level = Math.max(1,Math.min(500,Number(saved.level)||1));
+ points = Math.max(0,Number(saved.points)||0);
+} catch(e) {}
+
+function save(){
+ localStorage.setItem("quizMasterSave",JSON.stringify({level,points}));
+}
+
+function tier(l){
+ if(l<100)return 1;
+ if(l<200)return 2;
+ if(l<300)return 3;
+ if(l<400)return 4;
+ return 5;
+}
+
+function rand(n){return Math.floor(Math.random()*n)}
+function pick(a){return a[rand(a.length)]}
+function makeQ(category,question,answer,wrong){
+ let choices=[answer,...wrong];
+ choices=[...new Set(choices.map(String))];
+ while(choices.length<4) choices.push("Одговор "+(choices.length+1));
+ choices=choices.slice(0,4).sort(()=>Math.random()-.5);
+ return {category,question,answer:String(answer),choices};
+}
+
+const countries=[
+ ["Франција","Париз"],["Италија","Рим"],["Германија","Берлин"],
+ ["Шпанија","Мадрид"],["Грција","Атина"],["Јапонија","Токио"],
+ ["Австралија","Канбера"],["Канада","Отава"],["Египет","Каиро"],
+ ["Бразил","Бразилија"],["Србија","Белград"],["Албанија","Тирана"],
+ ["Бугарија","Софија"],["Хрватска","Загреб"],["Португалија","Лисабон"]
+];
+const sports=[
+ ["Колку играчи има еден фудбалски тим на терен?","11",["9","10","12"]],
+ ["Во кој спорт се користи кош?","Кошарка",["Тенис","Ракомет","Одбојка"]],
+ ["Колку прстени има олимпискиот симбол?","5",["4","6","7"]],
+ ["Кој спорт се игра со рекет и топче?","Тенис",["Фудбал","Пливање","Бокс"]],
+ ["Колку поени вреди слободно фрлање во кошарка?","1",["2","3","4"]],
+ ["Кој спорт има позиција голман?","Фудбал",["Тенис","Атлетика","Бокс"]]
+];
+const science=[
+ ["Која планета е позната како Црвената планета?","Марс",["Венера","Јупитер","Сатурн"]],
+ ["Кој гас го вдишуваат луѓето за да живеат?","Кислород",["Азот","Водород","Јаглерод диоксид"]],
+ ["Колку нозе има пајакот?","8",["6","10","12"]],
+ ["Која е хемиската формула на водата?","H2O",["CO2","O2","NaCl"]],
+ ["Која ѕвезда е најблиску до Земјата?","Сонцето",["Сириус","Поларна","Вега"]],
+ ["Кој орган пумпа крв низ телото?","Срцето",["Белите дробови","Црниот дроб","Бубрезите"]]
+];
+const history=[
+ ["Во која година започнала Втората светска војна?","1939",["1914","1941","1945"]],
+ ["Кој бил првиот човек на Месечината?","Нил Армстронг",["Јуриј Гагарин","Баз Олдрин","Алан Шепард"]],
+ ["Која древна цивилизација ги изградила пирамидите во Гиза?","Египетската",["Римската","Грчката","Персиската"]],
+ ["Во која година завршила Втората светска војна?","1945",["1939","1941","1950"]],
+ ["Кој бил познат македонски револуционер?","Гоце Делчев",["Никола Тесла","Марко Поло","Леонардо да Винчи"]]
+];
+const culture=[
+ ["Кој ја напишал драмата „Хамлет“?","Вилијам Шекспир",["Чарлс Дикенс","Толстој","Достоевски"]],
+ ["Кој инструмент има црни и бели клавиши?","Пијано",["Гитара","Труба","Виолина"]],
+ ["Во кој град се наоѓа Лувр?","Париз",["Лондон","Рим","Берлин"]],
+ ["Која уметност користи бои и платно?","Сликарство",["Вајање","Театар","Архитектура"]]
+];
+const macedonian=[
+ ["Кој збор е именка?","Книга",["Убаво","Трча","Брзо"]],
+ ["Кој збор е глагол?","Пишува",["Маса","Син","Убав"]],
+ ["Која е множина од зборот „човек“?","Луѓе",["Човека","Човекови","Човеци"]],
+ ["Кој знак се става на крај на прашална реченица?","?",[".","!",","]]
+];
+const english=[
+ ["Што значи зборот „apple“?","Јаболко",["Круша","Портокал","Праска"]],
+ ["Кој е минатиот облик на „go“?","Went",["Goed","Gone","Going"]],
+ ["Што значи „beautiful“?","Убав",["Брз","Голем","Силен"]],
+ ["Кој збор е спротивен на „hot“?","Cold",["Warm","Fast","Tall"]]
+];
+
+function makeQuestion(l){
+ let t=tier(l), c=rand(8);
+ if(c===0){
+  let a=rand(10*t+10)+1,b=rand(10*t+10)+1;
+  let op=rand(2)===0?"+":"×";
+  let ans=op==="+"?a+b:a*b;
+  return makeQ("Математика",`${a} ${op} ${b} = ?`,ans,[ans+1,ans-1,ans+3]);
+ }
+ if(c===1){
+  let item=pick(countries);
+  return makeQ("Географија",`Кој е главен град на ${item[0]}?`,item[1],countries.filter(x=>x[1]!==item[1]).slice(0,3).map(x=>x[1]));
+ }
+ if(c===2){let x=pick(sports);return makeQ("Спорт",x[0],x[1],x[2]);}
+ if(c===3){let x=pick(science);return makeQ("Наука",x[0],x[1],x[2]);}
+ if(c===4){let x=pick(macedonian);return makeQ("Македонски јазик",x[0],x[1],x[2]);}
+ if(c===5){let x=pick(english);return makeQ("Англиски јазик",x[0],x[1],x[2]);}
+ if(c===6){let x=pick(history);return makeQ("Историја",x[0],x[1],x[2]);}
+ let x=pick(culture);return makeQ("Култура",x[0],x[1],x[2]);
+}
+
+function showHome(){
+ clearInterval(timer);
+ $("screen").innerHTML=`
+ <div class="stats"><span>⭐ Поени: ${points}</span><span>🔓 Ниво: ${level}/500</span></div>
+ <div class="menu">
+ <button onclick="startLevel()">🎮 ИГРАЈ НИВО ${level}</button>
+ <button onclick="showLevels()">📚 ИЗБЕРИ НИВО</button>
+ <button onclick="showTournamentSetup()">🏆 ТУРНИР 1 НА 1</button>
+ </div>
+ <p class="small">8 категории • 4 одговори • 25 секунди по прашање</p>`;
+}
+
+function startLevel(){
+ tournament=false;
+ totalQuestions=15;
+ questions=Array.from({length:15},()=>makeQuestion(level));
+ questionIndex=0;
+ startQuestion();
+}
+
+function showLevels(){
+ let html=`<h2>Избери ниво</h2><p>Отклучено до ниво ${level}</p><div style="display:grid;grid-template-columns:r
