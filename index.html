@@ -1,222 +1,168 @@
-**Дел 1 од 3 — продолжи со деловите 2 и 3 без да додаваш или бришеш редови.**
-
-```html
 <!DOCTYPE html>
 <html lang="mk">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quiz Master — 500 нивоа</title>
+<title>Quiz Master Ultimate</title>
 <style>
-:root{--bg:#10172a;--panel:#202c48;--blue:#4267d5;--cyan:#65d6ff;--green:#159b68;--red:#c43d50}
-*{box-sizing:border-box}body{margin:0;padding:20px 12px;font-family:Arial,sans-serif;background:linear-gradient(135deg,#10172a,#253b70);color:#fff;text-align:center}
-.wrap{max-width:950px;margin:auto}.game{background:var(--panel);max-width:850px;margin:18px auto;padding:22px;border-radius:18px;box-shadow:0 18px 50px #0005}
-h1{color:var(--cyan);margin:5px}button{font:inherit;display:block;width:100%;padding:13px;margin:9px 0;border:0;border-radius:9px;background:var(--blue);color:#fff;font-size:16px;font-weight:bold;cursor:pointer}
-button:hover{filter:brightness(1.15)}button:disabled{cursor:default;opacity:.5}.secondary{background:#354568!important}.green{background:var(--green)!important}
-.hidden{display:none!important}.muted,small{color:#bdc9e4}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px}.stat{background:#17233d;padding:12px;border-radius:10px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.levelgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(65px,1fr));gap:6px;max-height:430px;overflow:auto;padding:4px}
-.levelgrid button{padding:10px 3px;font-size:13px;margin:0}.done{background:#137c5a!important}.locked{background:#354056!important}
-.answer{background:#354568;text-align:left}.answer.correct{background:#159b68}.answer.wrong{background:#c43d50}
-.progress{height:9px;background:#121d35;border-radius:20px;overflow:hidden;margin:12px 0}.progress span{display:block;height:100%;background:var(--cyan);width:0}
-#feedback{min-height:25px;font-weight:bold}.pill{display:inline-block;padding:7px 12px;border-radius:20px;background:#344b83;margin:3px;font-size:13px}
-#question{line-height:1.35}.foot{font-size:12px;color:#bdc9e4;line-height:1.5}
+:root{
+ --bg:#0b1020;--panel:#172440;--panel2:#203456;
+ --blue:#4169e1;--cyan:#62dcff;--green:#13a875;
+ --red:#d94b61;--gold:#ffc857;--text:#f5f7ff;--muted:#b8c7e5;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;padding:20px 13px;
+ font-family:Arial,sans-serif;color:var(--text);
+ background:radial-gradient(circle at top,#284c91 0,#111b35 48%,#090e1c 100%);
+}
+button{font:inherit;cursor:pointer;border:0}
+button:disabled{cursor:not-allowed;opacity:.55}
+.wrap{max-width:1050px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.logo{font-size:clamp(22px,4vw,34px);font-weight:900;color:var(--cyan);letter-spacing:1px}
+.tag{color:var(--muted);font-size:13px}
+.panel{
+ background:linear-gradient(145deg,#1e3155,#172440);
+ border:1px solid #ffffff16;border-radius:20px;padding:22px;
+ margin:16px auto;box-shadow:0 16px 45px #0005;
+}
+h1,h2,h3{margin-top:5px}
+h2{font-size:25px}
+.muted{color:var(--muted);line-height:1.5}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.stat{background:#0e1a32;padding:15px 8px;border-radius:13px;font-weight:bold}
+.stat b{display:block;font-size:23px;color:var(--cyan);margin-top:5px}
+.btn{
+ width:100%;padding:14px 12px;border-radius:11px;
+ background:linear-gradient(135deg,#4169e1,#3153b6);
+ color:white;font-size:16px;font-weight:bold;margin:6px 0;
+ transition:.15s;
+}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn.secondary{background:#344665}
+.btn.green{background:linear-gradient(135deg,#13a875,#087d5a)}
+.btn.red{background:#a9344b}
+.btn.gold{background:#a87920}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+.levelgrid{
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(57px,1fr));
+ gap:7px;max-height:430px;overflow:auto;padding:5px;
+}
+.level{
+ padding:12px 3px;border-radius:9px;background:#344b73;color:white;
+ font-weight:bold;font-size:14px;
+}
+.level.unlocked{background:#4169c9}
+.level.completed{background:#11845e}
+.level.locked{background:#26334b;color:#8794aa}
+.level:hover:not(:disabled){filter:brightness(1.2)}
+.hidden{display:none!important}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{display:inline-block;background:#31496f;padding:7px 12px;border-radius:30px;font-size:13px;color:#dceaff}
+.progress{height:10px;background:#0b1427;border-radius:20px;overflow:hidden;margin:15px 0}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#48b8ff,#67f0e1);transition:width .2s}
+#question{font-size:clamp(19px,3vw,25px);line-height:1.4;margin:23px 0}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.answer{
+ min-height:58px;padding:13px;text-align:left;border-radius:11px;
+ color:white;background:#344968;border:2px solid transparent;font-weight:bold;
+}
+.answer:hover:not(:disabled){background:#405c88}
+.answer.correct{background:#087c58;border-color:#4ce0a9}
+.answer.wrong{background:#a8324a;border-color:#ff8295}
+#feedback{min-height:28px;font-weight:bold;margin:15px 0}
+.playerturn{font-size:17px;font-weight:bold;color:var(--gold)}
+.categorylist{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:15px 0}
+.categorylist span{background:#263d64;border-radius:20px;padding:7px 10px;font-size:12px}
+.footer{text-align:center;font-size:12px;color:#9eacc8;margin:20px}
+@media(max-width:600px){
+ body{padding:12px 8px}.panel{padding:15px}.stats{gap:6px}
+ .stat{font-size:12px}.stat b{font-size:19px}
+ .answers{grid-template-columns:1fr}.answer{min-height:50px}
+}
 </style>
 </head>
-<body><div class="wrap">
-<div class="top"><h1>QUIZ MASTER</h1><span class="muted">500 нивоа · 7.500 прашања</span></div>
-<section id="home" class="game">
-<h2>Избери ниво</h2>
-<p class="muted">Во секое ниво има 15 измешани прашања од сите 8 области. Потребни се 12 точни одговори за следното ниво.</p>
-<div class="row">
-<div class="stat">⭐ Поени: <b id="points">0</b></div>
-<div class="stat">🔓 Отклучено: <b id="unlocked">1/500</b></div>
-<div class="stat">🏆 Завршени: <b id="completed">0</b></div>
+<body>
+<div class="wrap">
+
+<header>
+ <div class="logo">⚡ QUIZ MASTER ULTIMATE</div>
+ <div class="tag">500 НИВОА · 1v1 ТУРНИР · БЕЗ РЕГИСТРАЦИЈА</div>
+</header>
+
+<section id="home" class="panel">
+ <h2>Добредојде во Quiz Master!</h2>
+ <p class="muted">Тестирај го своето знаење, освојувај поени и отклучувај сè потешки нивоа.</p>
+
+ <div class="stats">
+  <div class="stat">⭐ Поени<b id="points">0</b></div>
+  <div class="stat">🏆 Завршени нивоа<b id="completed">0</b></div>
+  <div class="stat">🔓 Отклучено<b id="unlocked">1 / 500</b></div>
+ </div>
+
+ <div class="grid">
+  <button class="btn" onclick="openLevels()">🎮 ИГРАЈ — 500 НИВОА</button>
+  <button class="btn gold" onclick="openTournament()">⚔️ 1v1 ТУРНИР</button>
+ </div>
+
+ <div class="categorylist">
+  <span>➗ Математика</span><span>🌍 Географија</span>
+  <span>⚽ Спорт</span><span>🔬 Наука</span>
+  <span>📚 Македонски</span><span>🇬🇧 Англиски</span>
+  <span>🏛️ Историја</span><span>🎨 Култура</span>
+ </div>
+ <p class="muted">Прогресот автоматски се зачувува на овој уред.</p>
+ <button class="btn secondary" onclick="resetProgress()">Ресетирај прогрес</button>
+</section>
+
+<section id="levels" class="panel hidden">
+ <div class="topline"><h2>Избери ниво</h2><span class="pill">500 нивоа</span></div>
+ <p class="muted">Секое ниво има 15 прашања. Потребни се најмалку 12 точни одговори за да го отклучиш следното ниво.</p>
+ <div id="levelgrid" class="levelgrid"></div>
+ <button class="btn secondary" onclick="goHome()">← Назад</button>
+</section>
+
+<section id="tournament" class="panel hidden">
+ <h2>⚔️ 1v1 Турнир</h2>
+ <p class="muted">Двајца играчи играат наизменично на истиот уред. Победува играчот со повеќе точни одговори.</p>
+ <div class="grid">
+  <button class="btn" onclick="startTournament(20)">20 прашања</button>
+  <button class="btn" onclick="startTournament(30)">30 прашања</button>
+  <button class="btn" onclick="startTournament(40)">40 прашања</button>
+ </div>
+ <button class="btn secondary" onclick="goHome()">← Назад</button>
+</section>
+
+<section id="quiz" class="panel hidden">
+ <div class="topline">
+  <b id="gamemode">Ниво 1</b>
+  <span id="counter" class="pill">Прашање 1/15</span>
+ </div>
+ <div class="progress"><span id="bar"></span></div>
+ <div id="turn" class="playerturn"></div>
+ <div class="categorylist"><span id="category">Категорија</span></div>
+ <h2 id="question">Прашање</h2>
+ <div id="answers" class="answers"></div>
+ <p id="feedback"></p>
+ <div class="topline">
+  <span id="score" class="muted">Поени: 0</span>
+  <span id="correctcount" class="muted">Точни: 0</span>
+ </div>
+ <button id="next" class="btn green" onclick="nextQuestion()" disabled>Следно прашање →</button>
+</section>
+
+<section id="result" class="panel hidden">
+ <h2 id="resulttitle">Резултат</h2>
+ <h1 id="resultscore" style="color:var(--cyan);font-size:42px">0</h1>
+ <p id="resulttext" class="muted"></p>
+ <button class="btn" onclick="goHome()">Главно мени</button>
+ <button id="retry" class="btn secondary hidden" onclick="retryLevel()">Играј повторно</button>
+</section>
+
+<div class="footer">QUIZ MASTER ULTIMATE · Забавувај се и учи!</div>
 </div>
-<p><span class="pill">Математика</span><span class="pill">Географија</span><span class="pill">Спорт</span><span class="pill">Наука</span><span class="pill">Македонски</span><span class="pill">Англиски</span><span class="pill">Историја</span><span class="pill">Култура</span></p>
-<div id="levelgrid" class="levelgrid"></div>
-<p class="foot">Прогресот се зачувува на истиот уред во прелистувачот. Нема регистрација и најава.</p>
-<button class="secondary" onclick="resetProgress()">Ресетирај прогрес</button>
-</section>
-<section id="play" class="game hidden">
-<div class="top"><b id="leveltitle">Ниво 1</b><span id="counter">Прашање 1/15</span></div>
-<div class="progress"><span id="bar"></span></div>
-<div class="pill" id="category">Категорија</div>
-<h2 id="question">Прашање</h2><div id="answers"></div>
-<p id="feedback"></p><p id="score">Поени: 0</p>
-<button id="next" class="green" onclick="nextQuestion()" disabled>Следно</button>
-</section>
-<section id="result" class="game hidden">
-<h2 id="resulttitle">Резултат</h2><h1 id="resultscore"></h1><p id="resulttext" class="muted"></p>
-<button onclick="showHome()">Назад кон нивоата</button>
-</section>
-</div>
+
 <script>
 const $=id=>document.getElementById(id);
-const STORE='quiz_master_500_mk_v1';
-let saved=JSON.parse(localStorage.getItem(STORE)||'{"points":0,"unlocked":1,"completed":[]}');
-let currentLevel=1,deck=[],index=0,correct=0,answered=false,runPoints=0;
-const categories=['Математика','Географија','Спорт','Наука','Македонски јазик','Англиски јазик','Историја','Култура'];
-const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-function q(question,answer,wrong,cat){let opts=shuffle([answer,...wrong]).slice(0,4);return {question,answer,opts,cat}}
-const countries=[
-['Франција','Париз'],['Германија','Берлин'],['Италија','Рим'],['Шпанија','Мадрид'],['Португалија','Лисабон'],['Норвешка','Осло'],['Шведска','Стокхолм'],['Финска','Хелсинки'],['Полска','Варшава'],['Чешка','Прага'],['Унгарија','Будимпешта'],['Романија','Букурешт'],['Бугарија','Софија'],['Албанија','Тирана'],['Србија','Белград'],['Хрватска','Загреб'],['Словенија','Љубљана'],['Грција','Атина'],['Турција','Анкара'],['Јапонија','Токио'],['Кина','Пекинг'],['Јужна Кореја','Сеул'],['Индија','Њу Делхи'],['Тајланд','Бангкок'],['Виетнам','Ханој'],['Египет','Каиро'],['Кенија','Најроби'],['Мароко','Рабат'],['Канада','Отава'],['САД','Вашингтон'],['Мексико','Мексико Сити'],['Бразил','Бразилија'],['Аргентина','Буенос Аирес'],['Чиле','Сантјаго'],['Австралија','Канбера'],['Нов Зеланд','Велингтон']
-];
-const science=[
-['Хемискиот симбол Na означува кој елемент?','Натриум',['Калиум','Азот','Неон']],
-['Која органела произведува најголем дел од ATP во клетката?','Митохондрија',['Рибозом','Јадро','Лизозом']],
-['Која е SI единицата за електрична струја?','Ампер',['Волт','Ом','Ват']],
-['Кој гас е најзастапен во Земјината атмосфера?','Азот',['Кислород','Јаглерод диоксид','Аргон']],
-['Која е pH вредноста на неутрален раствор на 25°C?','7',['0','5','14']],
-['Кој дел од окото ја регулира количината на светлина?','Ирисот',['Ретината','Рожницата','Очниот нерв']],
-['Кој процес ги претвора водата и јаглерод диоксидот во шеќери кај растенијата?','Фотосинтеза',['Клеточно дишење','Ферментација','Транспирација']],
-['Која честичка има негативен електричен полнеж?','Електрон',['Протон','Неутрон','Фотон']],
-['Кој е најтврд природен минерал на Мосовата скала?','Дијамант',['Кварц','Корунд','Топаз']],
-['Кој орган најмногу го детоксицира организмот?','Црн дроб',['Срце','Слезина','Панкреас']]
-];
-const history=[
-['Во која година паднал Западниот Римски Империум?','476',['395','410','565']],
-['Која година започнала Француската револуција?','1789',['1776','1815','1848']],
-['Кој договор формално ја завршил Првата светска војна со Германија?','Версајскиот договор',['Утрехтскиот договор','Парискиот договор','Виенскиот конгрес']],
-['Кој македонски револуционер бил познат како Даме Груев?','Дамјан Груев',['Гоце Делчев','Пере Тошев','Јане Сандански']],
-['Во која година започнало Илинденското востание?','1903',['1893','1908','1912']],
-['Кој бил првиот претседател на САД?','Џорџ Вашингтон',['Томас Џеферсон','Абрахам Линколн','Џон Адамс']],
-['Која империја ја изградиле Ацтеките?','Ацтечката империја',['Инките','Маите','Отоманската']],
-['Кој владетел го издал Миланскиот
- const advanced = {
-1: {
-'Географија':[
- ['Која теснина ги поврзува Црното и Мраморното Море?','Босфор',['Дарданели','Гибралтар','Ла Манш']],
- ['Која држава е целосно опкружена со Јужна Африка?','Лесото',['Есватини','Боцвана','Намибија']],
- ['Кое езеро е најдлабоко во светот?','Бајкалско Езеро',['Тангањика','Викторија','Супериор']]
-],
-'Спорт':[
- ['Во шах, како се нарекува ситуација кога кралот е нападнат и нема легален потег за спас?','Мат',['Пат','Рокада','Цугцванг']],
- ['Кој атлетски настан е составен од десет дисциплини?','Десетобој',['Седмобој','Петобој','Тројна скокачка дисциплина']],
- ['Во кој спорт се користи терминот „пит-стоп“?','Автомобилски трки',['Велосипедизам','Маратон','Пливање']]
-],
-'Наука':[
- ['Кој закон ја опишува врската меѓу притисокот и волуменот при константна температура?','Бојлов закон',['Шарлов закон','Омов закон','Хуков закон']],
- ['Кој ензим ја разградува скробната материја во устата?','Амилаза',['Пепсин','Липаза','Трипсин']],
- ['Која е SI единицата за количина супстанција?','Мол',['Кандела','Келвин','Паскал']]
-],
-'Македонски јазик':[
- ['Која стилска фигура претставува намерно претерување?','Хипербола',['Метонимија','Иронија','Еуфемизам']],
- ['Кој збор е прилошка определба за причина во „Остана дома поради дождот“?','поради дождот',['остана','дома','поради']],
- ['Кој е правилниот компаратив од „строг“?','построг',['строгее','најстрог','строжен']]
-],
-'Англиски јазик':[
- ['Choose the correct inversion: “Rarely ___ such a difficult problem.”','have I seen',['I have seen','I saw','did I saw']],
- ['What does “ubiquitous” mean?','present everywhere',['extremely rare','short-lived','difficult to understand']],
- ['Choose the correct form: “Had they known, they ___ earlier.”','would have arrived',['will arrive','would arrive','had arrived']]
-],
-'Историја':[
- ['Кој договор од 1494 година ги поделил новооткриените територии меѓу Шпанија и Португалија?','Договорот од Тордесиљас',['Вестфалскиот мир','Утрехтскиот договор','Договорот од Париз']],
- ['Која битка во 732 година го запрела напредувањето на Омајадите во Западна Европа?','Битката кај Тур',['Битката кај Поатје во 1356','Хастингс','Аженкур']],
- ['Кој владетел ја започнал ерата Меиџи во Јапонија?','Императорот Муцухито',['Токугава Иејасу','Хидејоши','Акихито']]
-],
-'Култура':[
- ['Кој филозоф го напишал делото „Критика на чистиот ум“?','Имануел Кант',['Фридрих Ниче','Рене Декарт','Дејвид Хјум']],
- ['Кој архитектонски стил се одликува со зашилени лакови и летечки потпори?','Готика',['Романика','Барок','Ренесанса']],
- ['Кој автор го напишал „Процес“?','Франц Кафка',['Томас Ман','Херман Хесе','Албер Ками']]
-]},
-2: {
-'Географија':[
- ['Која е најголемата ендорејска водна површина во светот?','Касписко Море',['Аралско Езеро','Мртво Море','Бајкалско Езеро']],
- ['Која пустина се протега низ делови од Намибија, Боцвана и Јужна Африка?','Калахари',['Намиб','Сахара','Атакама']],
- ['Која река има најголем просечен истек во светот?','Амазон',['Конго','Нил','Јангцекјанг']]
-],
-'Спорт':[
- ['Кој е максималниот можен break во стандардна снукер партија без слободна топка?','147',['155','140','150']],
- ['Во фехтање, кој вид оружје дозволува бодирање со врвот и целото тело како цел?','Епе',['Сабја','Флоре','Рапир']],
- ['Која земја ја освои првата машка ФИФА светска титула во 1930?','Уругвај',['Аргентина','Италија','Бразил']]
-],
-'Наука':[
- ['Која равенка ја изразува еквивалентноста меѓу маса и енергија?','E = mc²',['F = ma','V = IR','pV = nRT']],
- ['Кој тип РНК носи аминокиселини до рибозомот?','тРНК',['мРНК','рРНК','микроРНК']],
- ['Како се нарекува границата околу црна дупка над која ништо не може да избега?','Хоризонт на настани',['Акреционен диск','Сингуларитет','Фотонска сфера']]
-],
-'Македонски јазик':[
- ['Која реченица е сложена зависносложена?','Иако врнеше, продолживме бидејќи моравме да стигнеме.',['Врнеше и дуваше.','Дојдов, видов, победив.','Тој чита книга.']],
- ['Кој термин означува збор со исто значење како друг збор?','Синоним',['Антоним','Хомоним','Омоним']],
- ['Која гласовна промена се забележува во парот „рака – раце“?','Палатализација',['Јотација','Елизија','Метатеза']]
-],
-'Англиски јазик':[
- ['Which sentence uses the subjunctive correctly?','The committee insisted that he be present.',['The committee insisted that he is present.','The committee insisted he was be present.','The committee insisted that he being present.']],
- ['What is the meaning of “to mitigate”?','to make less severe',['to make worse','to measure precisely','to postpone indefinitely']],
- ['Choose the correct collocation: “___ a distinction”.','draw',['do','make up','take']]
-],
-'Историја':[
- ['Кој договор од 1713 година го призна Филип V за крал на Шпанија, со ограничувања за наследување?','Утрехтскиот мир',['Вестфалскиот мир','Тордесиљас','Парискиот договор']],
- ['Кој владетел ја основал Ахеменидската Персиска империја?','Кир Велики',['Дариј III','Ксеркс I','Артаксеркс II']],
- ['Која конференција во 1884–1885 ги поставила правилата за европската колонијална поделба на Африка?','Берлинската конференција',['Виенскиот конгрес','Јалтската конференција','Потсдамската конференција']]
-],
-'Култура':[
- ['Кој композитор ја развил техниката на додекафонија?','Арнолд Шенберг',['Клод Дебиси','Игор Стравински','Густав Малер']],
- ['Кој роман на Џејмс Џојс се одвива во текот на еден ден во Даблин?','Улис',['Даблинци','Портрет на уметникот во младоста','Финегановото бдеење']],
- ['Кој уметнички правец го поврзуваме со Андре Бретон и автоматско пишување?','Надреализам',['Футуризам','Кубизам','Импресионизам']]
-]},
-3: {
-'Географија':[
- ['Која држава има најмногу временски зони ако се сметаат прекуморските територии?','Франција',['Русија','САД','Обединетото Кралство']],
- ['Кој теснец ги раздвојува Азија и Северна Америка?','Беринговиот теснец',['Малакскиот теснец','Ормускиот теснец','Доверскиот теснец']],
- ['Која река тече низ најголемиот дел од Бразилскиот Амазонски басен?','Амазон',['Парана','Ориноко','Сан Франциско']]
-],
-'Спорт':[
- ['Кој шаховски систем за рејтинг е именуван по американски физичар?','Ело',['ФИДЕ','Глико','Шенон']],
- ['Кој пливачки стил има симетрично движење на рацете над водата?','Пеперутка',['Грбно','Градно','Крол']],
- ['Која е стандардната висина на кошаркарскиот обрач од подот?','3,05 m',['2,95 m','3,15 m','3,25 m']]
-],
-'Наука':[
- ['Кој принцип вели дека не можат два електрона во атом да имаат исти четири квантни броеви?','Паулиев принцип',['Хајзенбергов принцип','Авогадров закон','Доплеров ефект']],
- ['Која е единицата за каталитичка активност во SI?','Катал',['Мол','Џул','Сименс']],
- ['Кој механизам создава генетска разновидност преку размена на сегменти меѓу хомологни хромозоми?','Кросинговер',['Транслација','Транскрипција','Митоза']]
-],
-'Македонски јазик':[
- ['Која реченица содржи неправилен удвоен предмет?','Му го видов него вчера.',['Му ја дадов книгата на Ана.','Го видов Марко вчера.','Им раскажав приказна на децата.']],
- ['Како се нарекува пренесување значење врз основа на сродност или соседство?','Метонимија',['Метафора','Епифо
-   function makeQuestion(level,pos){
- const tier=level<100?0:level<200?1:level<300?2:level<400?3:4;
- const cat=categories[(level*7+pos*3)%categories.length];
- if(tier===0){
-  if(cat==='Математика')return mathQuestion(level*31+pos*17);
-  const basePool=cat==='Географија'?countries:null;
-  if(basePool){let c=basePool[(level*11+pos*7)%basePool.length];return q(`Кој е главниот град на ${c[0]}?`,c[1],shuffle(basePool.filter(x=>x[1]!==c[1]).map(x=>x[1])).slice(0,3),cat)}
-  const pool=cat==='Наука'?science:cat==='Историја'?history:cat==='Култура'?culture:cat==='Спорт'?sports:cat==='Македонски јазик'?mk:en;
-  let x=pool[(level*3+pos*5)%pool.length];return q(x[0],x[1],x[2],cat);
- }
- if(cat==='Математика'){
-  let a,b,ans,question,wrong;
-  if(tier===1){a=18+((level*7+pos*13)%70);b=12+((level*11+pos*9)%60);ans=a*b;question=`Пресметај: (${a} × ${b}) − ${a}.`;ans=ans-a;wrong=[ans+a,ans+b,ans+2*a]}
-  else if(tier===2){a=3+((level+pos*2)%13);b=4+((level*3+pos)%17);ans=a*a-b*b;question=`Реши со разлика на квадрати: ${a}² − ${b}².`;wrong=[a*a+b*b,ans+a,ans-b]}
-  else if(tier===3){a=2+((level+pos)%7);b=3+((level*2+pos)%9);let x=5+((level+pos*3)%18);ans=a*x-b;question=`Ако ${a}(x) − ${b} = ${ans}, одреди го x.`;ans=x;wrong=[x+2,x-1,x+3]}
-  else{a=3+((level+pos)%8);b=2+((level*3+pos)%7);let x=4+((level+pos*5)%20);ans=a*x*x-b;question=`Ако ${a}x² − ${b} = ${a*x*x-b}, колку е |x|?`;ans=x;wrong=[x+1,x-2,x+3]}
-  return q(question,String(ans),wrong.map(String),cat);
- }
- const pool=advanced[tier][cat];let x=pool[(level*5+pos*3)%pool.length];return q(x[0],x[1],x[2],cat);
-}
-
-function buildDeck(level){
- let arr=[];for(let i=0;i<15;i++)arr.push(makeQuestion(level,i));
- // Ensure all eight subjects occur in every level, then mix the order.
- let seen=new Set(arr.map(x=>x.cat));
- for(const c of categories){if(!seen.has(c)){let p=arr.findIndex(x=>arr.filter(y=>y.cat===x.cat).length>1);if(p>=0)arr[p]=makeQuestion(level,15+categories.indexOf(c));}}
- return shuffle(arr);
-}
-function save(){localStorage.setItem(STORE,JSON.stringify(saved))}
-function renderLevels(){
- $('points').textContent=saved.points;$('unlocked').textContent=saved.unlocked+'/500';$('completed').textContent=saved.completed.length;
- let g=$('levelgrid');g.innerHTML='';
- for(let i=1;i<=500;i++){let b=document.createElement('button');b.textContent=i;b.className=i<=saved.unlocked?'':'locked';if(saved.completed.includes(i))b.classList.add('done');b.disabled=i>saved.unlocked;b.onclick=()=>startLevel(i);g.appendChild(b)}
-}
-function showHome(){ $('home').classList.remove('hidden');$('play').classList.add('hidden');$('result').classList.add('hidden');renderLevels()}
-function startLevel(n){currentLevel=n;deck=buildDeck(n);index=0;correct=0;runPoints=0;$('home').classList.add('hidden');$('result').classList.add('hidden');$('play').classList.remove('hidden');showQuestion()}
-function showQuestion(){
- answered=false;let x=deck[index];$('leveltitle').textContent='Ниво '+currentLevel;$('counter').textContent=`Прашање ${index+1}/15`;$('bar').style.width=(index/15*100)+'%';$('category').textContent=x.cat;$('question').textContent=x.question;$('answers').innerHTML='';$('feedback').textContent='';$('score').textContent='Точни: '+correct+' / 15 · Поени: '+runPoints;$('next').disabled=true;
- x.opts.forEach(opt=>{let b=document.createElement('button');b.className='answer';b.textContent=opt;b.onclick=()=>choose(b,opt,x);$('answers').appendChild(b)});
-}
-function choose(btn,opt,x){if(answered)return;answered=true;let buttons=[...$('answers').children];buttons.forEach(b=>{b.disabled=true;if(b.textContent===x.answer)b.classList.add('correct')});if(opt===x.answer){correct++;runPoints+=10;$('feedback').textContent='Точно! +10 поени';$('feedback').style.color='#65e6ae'}else{btn.classList.add('wrong');$('feedback').textContent='Неточно. Точен одговор: '+x.answer;$('feedback').style.color='#ff9aa7'}$('score').textContent='Точни: '+correct+' / 15 · Поени: '+runPoints;$('next').disabled=false}
-function nextQuestion(){if(!answered)return;index++;if(index<15){showQuestion();return}finishLevel()}
-function finishLevel(){saved.points+=runPoints;if(correct>=12){if(!saved.completed.includes(currentLevel))saved.completed.push(currentLevel);if(currentLevel===saved.unlocked&&saved.unlocked<500)saved.unlocked++;$('resulttitle').textContent='Браво! Нивото е поминато';$('resulttext').textContent=correct+'/15 точни. Следното ниво е отклучено.'}else{$('resulttitle').textContent='Обиди се повторно';$('resulttext').textContent=correct+'/15 точни. Потребни се најмалку 12 точни одговори.'}$('resultscore').textContent='+'+runPoints+' поени';save();$('play').classList.add('hidden');$('result').classList.remove('hidden');renderLevels()}
-function resetProgress(){if(confirm('Сигурно сакаш да го избришеш целиот прогрес?')){saved={points:0,unlocked:1,completed:[]};save();renderLevels()}}
-renderLevels();
-</script></body></html>                                                                                          
+const KEY='quizMasterUltimate
