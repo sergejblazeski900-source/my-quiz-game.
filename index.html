@@ -581,6 +581,28 @@ async function startTournament() {
       "Грешка при започнување на турнирот: " + error.message;
   }
 }
-      </script>
+   function showLevels() {
+    hideScreens();
+    document.getElementById("levelsPanel").classList.remove("hidden");
+    updateHeader();
+
+    const grid = document.getElementById("levelGrid");
+    grid.innerHTML = "";
+
+    for (let i = 1; i <= 500; i++) {
+        const unlocked = i <= (saveData.unlocked || 1);
+        const button = document.createElement("button");
+
+        button.textContent = "Ниво " + i;
+        button.disabled = !unlocked;
+
+        if (unlocked) {
+            button.onclick = () => startSolo(i);
+        }
+
+        grid.appendChild(button);
+    }
+}  
+    </script>
 </body>
 </html>
