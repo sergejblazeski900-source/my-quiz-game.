@@ -2,179 +2,585 @@
 <html lang="mk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz Master</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b55,#174fc0);color:white;min-height:100vh;padding:18px}
-.container{max-width:850px;margin:25px auto;background:#192d68;padding:25px;border-radius:20px;box-shadow:0 10px 35px #0006}
-h1{text-align:center;color:#ffe45c;font-size:34px}
-h2{text-align:center}
-button,input{font-size:17px;border:0;border-radius:12px;padding:14px;margin:6px}
-button{background:#ffe45c;color:#17234c;font-weight:bold;cursor:pointer}
-button:hover{filter:brightness(1.1)}
-button:disabled{opacity:.45;cursor:not-allowed}
-.menu button{display:block;width:100%;margin:12px 0}
-.stats{display:flex;justify-content:space-between;gap:10px;background:#101f50;padding:14px;border-radius:12px;flex-wrap:wrap}
-.hidden{display:none!important}
-.answers button{display:block;width:100%;text-align:left;background:#31569b;color:white}
-.answers button.correct{background:#168b58}
-.answers button.wrong{background:#b83250}
-#timer{height:12px;background:#40527d;border-radius:20px;overflow:hidden;margin:15px 0}
-#bar{height:100%;width:100%;background:#ffe45c;transition:width 1s linear}
-.small{color:#c6d5ff;font-size:14px;text-align:center}
-.levels{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
-.levels button{padding:10px 2px;margin:0}
-.levels button.locked{background:#69738e;color:#ddd}
-input{width:100%;max-width:100%;background:white;color:#111}
-.panel{background:#102252;padding:18px;border-radius:14px;margin:12px 0}
-#message{text-align:center;min-height:25px;color:#ffe45c}
-</style>
-</head>
-<body>
-<div class="container">
-<h1>🏆 QUIZ MASTER</h1>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QUIZ MASTER</title>
 
-<div id="home">
-<div class="stats">
-<span>⭐ Поени: <b id="points">0</b></span>
-<span>🔓 Отклучено ниво: <b id="unlocked">1</b>/500</span>
-</div>
-<div class="menu">
-<button onclick="startLevel(progress.level)">🎮 ИГРАЈ НИВО <span id="homeLevel">1</span></button>
-<button onclick="showLevels()">📚 ИЗБЕРИ НИВО</button>
-<button onclick="showTournament()">🏆 ТУРНИР 1 НА 1</button>
-</div>
-<p class="small">8 категории • 4 одговори • 25 секунди по прашање</p>
-</div>
-
-<div id="levelScreen" class="hidden">
-<h2>Избери ниво</h2>
-<p class="small">Отклучено до ниво <span id="maxLevel">1</span></p>
-<div class="levels" id="levelGrid"></div>
-<button onclick="goHome()">⬅ Назад</button>
-</div>
-
-<div id="game" class="hidden">
-<div class="stats">
-<span>Ниво: <b id="levelNumber">1</b></span>
-<span>Прашање: <b id="questionNumber">1</b>/15</span>
-<span>Поени: <b id="gamePoints">0</b></span>
-</div>
-<div id="timer"><div id="bar"></div></div>
-<p id="category" class="small"></p>
-<h2 id="question">Прашање</h2>
-<div class="answers" id="answers"></div>
-<p id="message"></p>
-<button id="nextButton" class="hidden" onclick="nextQuestion()">Следно ➜</button>
-<button onclick="goHome()">Излез</button>
-</div>
-
-<div id="tournament" class="hidden">
-<h2>🏆 Турнир 1 на 1</h2>
-<div class="panel">
-<h3>Креирај турнир</h3>
-<input id="playerName" placeholder="Твоето име">
-<button onclick="createRoom()">КРЕИРАЈ ТУРНИР</button>
-<p id="createdCode"></p>
-</div>
-<div class="panel">
-<h3>Приклучи се на турнир</h3>
-<input id="joinName" placeholder="Твоето име">
-<input id="roomCode" placeholder="Внеси код од другарот">
-<button onclick="joinRoom()">ПРИКЛУЧИ СЕ</button>
-</div>
-<p id="tournamentMessage"></p>
-<button onclick="goHome()">⬅ Назад</button>
-</div>
-</div>
-
-<!-- Firebase е потребен за турнир преку интернет -->
+<!-- Firebase библиотеки за онлајн турнир -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<script>
-/*
-  ЗА ОНЛАЈН ТУРНИР:
-  Внеси ги своите Firebase податоци во firebaseConfig подолу.
-  Без нив, играта за едно лице работи, но турнирот преку интернет нема да работи.
+<style>
+:root {
+  --bg:#0b1020;
+  --panel:#151e34;
+  --panel2:#202d49;
+  --border:#344563;
+  --text:#f5f7ff;
+  --muted:#aab6ce;
+  --purple:#795cff;
+  --cyan:#26d9e8;
+  --green:#19bd8c;
+  --red:#ff5878;
+  --gold:#ffc95b;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  background:radial-gradient(ellipse at top,#26345c 0,#10182b 48%,#080d19 100%);
+  font-family:Arial,Helvetica,sans-serif;
+}
+button,input { font:inherit; }
+button {
+  border:0;
+  border-radius:12px;
+  padding:13px 18px;
+  color:white;
+  background:linear-gradient(135deg,#8669ff,#5b40d1);
+  font-weight:800;
+  cursor:pointer;
+  transition:filter .15s,transform .15s;
+}
+button:hover { filter:brightness(1.12); transform:translateY(-1px); }
+button:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+.secondary { background:#344361; }
+.green { background:linear-gradient(135deg,#19bd8c,#087d68); }
+.red { background:linear-gradient(135deg,#ed5675,#ad294b); }
+.wrap { width:min(950px,94%); margin:auto; padding:22px 0 45px; }
+header {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px; flex-wrap:wrap; margin-bottom:22px;
+}
+.logo { font-size:clamp(27px,5vw,39px); font-weight:1000; letter-spacing:2px; }
+.logo span { color:var(--cyan); }
+.stats { display:flex; gap:9px; }
+.stat {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:11px; padding:10px 13px; color:var(--muted);
+}
+.stat b { color:white; margin-left:5px; }
+.panel {
+  padding:clamp(18px,4vw,28px);
+  border:1px solid var(--border);
+  border-radius:19px;
+  background:rgba(21,30,52,.97);
+  box-shadow:0 18px 45px #0005;
+  margin-bottom:17px;
+}
+h1 { font-size:clamp(26px,5vw,38px); margin:0 0 12px; }
+h2 { font-size:23px; margin:0 0 14px; }
+h3 { margin:0 0 8px; }
+p { color:var(--muted); line-height:1.6; }
+.hidden { display:none !important; }
+.menu-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:13px; margin-top:22px;
+}
+.menu-card {
+  padding:19px; border:1px solid var(--border);
+  background:var(--panel2); border-radius:15px;
+}
+.menu-card p { min-height:48px; }
+.level-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(57px,1fr));
+  gap:8px; max-height:410px; overflow:auto; padding:4px;
+}
+.level-btn { padding:12px 4px; background:#293957; }
+.level-btn.current { background:var(--purple); }
+.level-btn.locked { opacity:.3; cursor:not-allowed; }
+.topline {
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:10px; color:var(--muted);
+}
+.timer {
+  color:var(--gold); font-weight:900; font-size:23px;
+  padding:8px 14px; border-radius:11px; background:#393225;
+}
+.timer.urgent { background:#922e48; color:white; }
+.progress {
+  height:9px; margin:17px 0 22px; border-radius:20px;
+  background:#2a3855; overflow:hidden;
+}
+.progress div {
+  height:100%; width:0;
+  background:linear-gradient(90deg,var(--purple),var(--cyan));
+  transition:width .2s;
+}
+.question { font-size:clamp(20px,4vw,27px); line-height:1.45; margin:20px 0; }
+.answers { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+.answer {
+  min-height:64px; text-align:left; line-height:1.4;
+  background:#293957; border:1px solid #465a7c;
+}
+.answer.correct { background:#116e58; border-color:var(--green); }
+.answer.wrong { background:#8f2945; border-color:var(--red); }
+.answer:disabled { opacity:1; }
+.feedback { min-height:27px; margin:17px 0; font-weight:800; }
+.row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.row > button { flex:1; }
+input {
+  display:block; width:100%; margin:10px 0 13px;
+  padding:14px; color:white; background:#0c1528;
+  border:1px solid #465a7c; border-radius:10px;
+}
+input:focus { outline:2px solid var(--cyan); }
+.code-display {
+  text-align:center; font-size:35px; font-weight:900;
+  letter-spacing:7px; color:var(--cyan); padding:15px;
+}
+.player {
+  display:flex; justify-content:space-between; gap:10px;
+  padding:12px; background:#293957; border-radius:10px; margin:8px 0;
+}
+.small { font-size:13px; color:var(--muted); }
+footer { text-align:center; color:#7887a4; font-size:12px; padding:18px; }
+@media(max-width:600px) {
+  .answers { grid-template-columns:1fr; }
+  .stats { width:100%; }
+  .stat { flex:1; text-align:center; }
+  .panel { border-radius:14px; }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+<header>
+  <div class="logo">QUIZ <span>MASTER</span></div>
+  <div class="stats">
+    <div class="stat">Поени <b id="totalPoints">0</b></div>
+    <div class="stat">Отклучено <b id="unlockedLevel">1</b></div>
+  </div>
+</header>
+
+<section id="home" class="panel">
+  <h1>QUIZ MASTER</h1>
+  <p>500 нивоа • 15 прашања • 25 секунди по прашање</p>
+  <div class="menu-grid">
+    <div class="menu-card">
+      <h3>Самостојна игра</h3>
+      <p>Одговарај на прашања, освојувај поени и отклучувај нови нивоа.</p>
+      <button onclick="showLevels()">ИЗБЕРИ НИВО</button>
+    </div>
+    <div class="menu-card">
+      <h3>Онлајн турнир 1 на 1</h3>
+      <p>Создај соба и испрати му го кодот на пријателот.</p>
+      <button class="green" onclick="openTournament()">ОНЛАЈН ТУРНИР</button>
+    </div>
+  </div>
+</section>
+
+<section id="levelsPanel" class="panel hidden">
+  <div class="row">
+    <h2 style="flex:1">Избери ниво</h2>
+    <button class="secondary" onclick="goHome()">Назад</button>
+  </div>
+  <p id="levelDescription"></p>
+  <div id="levelGrid" class="level-grid"></div>
+</section>
+
+<section id="gamePanel" class="panel hidden">
+  <div class="topline">
+    <span id="levelLabel">Ниво 1</span>
+    <span id="questionNumber">Прашање 1 / 15</span>
+    <span id="timer" class="timer">25</span>
+  </div>
+  <div class="progress"><div id="progressBar"></div></div>
+  <div class="small" id="categoryLabel"></div>
+  <div id="questionText" class="question"></div>
+  <div id="answers" class="answers"></div>
+  <div id="feedback" class="feedback"></div>
+  <div class="row">
+    <button id="nextButton" onclick="nextQuestion()" disabled>Следно прашање</button>
+    <button class="secondary" onclick="quitGame()">Излез</button>
+  </div>
+</section>
+
+<section id="resultPanel" class="panel hidden">
+  <h1 id="resultTitle">Резултат</h1>
+  <h2 id="resultPoints"></h2>
+  <p id="resultDescription"></p>
+  <div class="row">
+    <button onclick="showLevels()">Продолжи</button>
+    <button class="secondary" onclick="goHome()">Главно мени</button>
+  </div>
+</section>
+
+<section id="tournamentPanel" class="panel hidden">
+  <div class="row">
+    <h2 style="flex:1">Онлајн турнир
+  /* БАНКА НА ПРАШАЊА: 5 ГРУПИ ПО ТЕЖИНА */
+
+const BANK = {
+1: [
+["Математика","Ако 4x + 8 = 32, колку е x?",["4","5","6","8"],2],
+["Географија","Која река минува низ Будимпешта?",["Рајна","Дунав","Сава","Висла"],1],
+["Наука","Кој е хемискиот симбол за калај?",["K","Sn","Ca","Ag"],1],
+["Историја","Во која година паднал Константинопол?",["1204","1389","1453","1492"],2],
+["Спорт","Колку играчи има еден тим во рагби јунион?",["11","13","15","16"],2],
+["Македонски јазик","Кој збор е прилог?",["брз","брзина","брзо","забрза"],2],
+["Англиски јазик","She ___ here since 2020.",["lives","lived","has lived","is live"],2],
+["Култура","Кој ја напишал драмата „Хамлет“?",["Дикенс","Шекспир","Молиер","Гете"],1],
+["Математика","Колку е 15% од 240?",["24","30","36","40"],2],
+["Географија","Која е најголемата пустина на Земјата?",["Сахара","Гоби","Антарктичка","Арапска"],2],
+["Наука","Која органела создава најголем дел од ATP?",["Рибозом","Митохондрија","Лизозом","Јадро"],1],
+["Историја","Која цивилизација го изградила Мачу Пикчу?",["Маите","Ацтеките","Инките","Олмеците"],2],
+["Спорт","Колку поени вреди тројка во кошарка?",["1","2","3","4"],2],
+["Македонски јазик","Која е множината од зборот „човек“?",["човеци","луѓе","човекови","човечки"],1],
+["Англиски јазик","What is the past participle of 'write'?",["Wrote","Written","Writing","Writes"],1]
+],
+2: [
+["Математика","Кои се решенијата на x² - 7x + 12 = 0?",["1 и 12","3 и 4","-3 и -4","2 и 6"],1],
+["Географија","Која држава целосно ја опкружува Лесото?",["Намибија","Боцвана","ЈАР","Зимбабве"],2],
+["Наука","Кој закон ги поврзува притисокот и волуменот при константна температура?",["Њутнов","Бојл-Мариотов","Омов","Фарадеев"],1],
+["Историја","Кој император го кодифицирал римското право?",["Константин","Јустинијан I","Ираклиј","Василиј II"],1],
+["Спорт","Во кој спорт се користи терминот „ипон“?",["Кендо","Џудо","Карате","Самбо"],1],
+["Македонски јазик","Која стилска фигура е „море од солзи“?",["Епитет","Хипербола","Метафора","Иронија"],2],
+["Англиски јазик","Choose the correct sentence.",["If I was you, I would go.","If I were you, I would go.","If I am you, I would go.","If I be you, I go."],1],
+["Култура","Кој е автор на романот „Процес“?",["Франц Кафка","Албер Ками","Џејмс Џојс","Томас Ман"],0],
+["Математика","Колкав е збирот на внатрешните агли на седумаголник?",["720°","900°","1080°","1260°"],1],
+["Географија","Кој е главен град на Буркина Фасо?",["Бамако","Ниамеј","Уагадугу","Нџамена"],2],
+["Наука","Кој е најзастапениот гас во атмосферата?",["Кислород","Азот","Аргон","Јаглерод диоксид"],1],
+["Историја","Која битка во 1815 го означила конечниот пораз на Наполеон?",["Аустерлиц","Лајпциг","Ватерло","Јена"],2],
+["Спорт","Колку минути трае рагби лига натпревар?",["60","70","80","90"],2],
+["Македонски јазик","Кој збор е заменка?",["нејзин","нежност","нежен","нежно"],0],
+["Англиски јазик","What does 'meticulous' mean?",["Careless","Very precise","Angry","Uncertain"],1]
+],
+3: [
+["Математика","Колкав е изводот на f(x)=3x³-4x²+7?",["9x²-8x","3x²-4x","9x³-8x²","6x-8"],0],
+["Географија","Која е најдлабоката позната океанска точка?",["Порторикански ров","Маријански ров","Јапонски ров","Тонга ров"],1],
+["Наука","Кој процес создава ATP без кислород во мускулните клетки?",["Аеробна фосфорилација","Гликолиза","Кребсов циклус","Бета-оксидација"],1],
+["Историја","Кој мир ја завршил Триесетгодишната војна во 1648?",["Париски","Вестфалски","Утрехтски","Аугсбуршки"],1],
+["Спорт","Во кој спорт се доделува Дејвис купот?",["Голф","Тенис","Крикет","Рагби"],1],
+["Македонски јазик","Која гласовна промена се јавува во „рака – рачен“?",["Јотација","Палатализација","Елизија","Метатеза"],1],
+["Англиски јазик","Choose the correct inversion.",["Rarely I have seen such skill.","Rarely have I seen such skill.","Rarely I seen have such skill.","Rarely did I have saw such skill."],1],
+["Култура","Кој е автор на „Сто години самотија“?",["Борхес","Габриел Гарсија Маркес","Варгас Љоса","Кортасар"],1],
+["Математика","Колкава е детерминантата на [[2,3],[1,4]]?",["5","8","11","14"],0],
+["Географија","Која река има најголем просечен проток?",["Нил","Амазон","Јангцекјанг","Конго"],1],
+["Наука","Кој ензим синтетизира RNA врз DNA матрица?",["DNA-лигаза","RNA-полимераза","Хеликаза","Реверзна транскриптаза"],1],
+["Историја","Кој османлиски султан го започнал Танзиматот?",["Абдулмеџид I","Махмуд II","Селим III","Абдулхамид II"],1],
+["Спорт","Колку сета се потребни за победа во машки Гренд слем сингл?",["2","3","4","5"],1],
+["Македонски јазик","Кој е автор на романот „Пиреј“?",["Славко Јаневски","Петре М. Андреевски","Венко Андоновски","Живко Чинго"],1],
+["Англиски јазик","What does 'ubiquitous' mean?",["Rare","Present everywhere","Temporary","Unimportant"],1]
+],
+4: [
+["Математика","Колкав е интегралот на 2x од 0 до 3?",["6","9","12","18"],1],
+["Географија","Која држава има најмногу временски зони со прекуморските територии?",["Русија","САД","Франција","Кина"],2],
+["Наука","Кој принцип ја ограничува истовремената точност на положбата и импулсот?",["Паулиев","Хајзенбергова релација","Архимедов","Бернулиев"],1],
+["Историја","Кој пакт од 1939 ја содржел тајната поделба на сфери на влијание?",["Минхенски","Молотов-Рибентроп","Брест-Литовски","Локарнски"],1],
+["Спорт","Која земја го освоила првото Светско првенство во фудбал?",["Бразил","Италија","Уругвај","Аргентина"],2],
+["Македонски јазик","Која функција ја има „кому“ во „Кому му ја даде книгата?“",["Подмет","Директен предмет","Индиректен предмет","Прилошка определба"],2],
+["Англиски јазик","He said: 'I have finished.' Choose reported speech.",["He said he finished.","He said he has finished.","He said he had finished.","He said he would finish."],2],
+["Култура","Кој го режирал филмот „Седмиот печат“?",["Ингмар Бергман","Фелини","Тарковски","Куросава"],0],
+["Математика","Колкав е збирот на 8 + 4 + 2 + 1 + ... до бесконечност?",["12","14","16","18"],2],
+["Географија","Кој планински венец ја дели европска од азиска Русија?",["Алпи","Кавказ","Урал","Карпати"],2],
+["Наука","Кој елемент има атомски број 74?",["Тантал","Волфрам","Осмиум","Рениум"],1],
+["Историја","Кој император го издал Едиктот од Милано со Лициниј?",["Август","Константин","Трајан","Теодосиј"],1],
+["Спорт","Кој шаховски потег истовремено поместува две фигури?",["Промоција","Рокада","Ан пасан","Виљушка"],1],
+["Македонски јазик","Кој е автор на поемата „Тешкото“?",["Ацо Шопов","Блаже Конески","Гане Тодоровски","Славко Јаневски"],1],
+["Англиски јазик","What does 'to throw down the gauntlet' mean?",["To surrender","To issue a challenge","To avoid conflict","To celebrate"],1]
+],
+5: [
+["Математика","Ако A е 2x2 и det(A)=3, колкава е det(2A)?",["6","9","12","18"],2],
+["Географија","Која држава граничи и со Каспиското Море и со Персискиот Залив?",["Ирак","Иран","Азербејџан","Туркменистан"],1],
+["Наука","Која равенка ја дава релативистичката врска меѓу енергија и импулс?",["E=mc² само","E²=(pc)²+(mc²)²","F=ma","p=mv²"],1],
+ ]
+};
+      Внеси ги податоците од твојот Firebase проект.
 */
+
 const firebaseConfig = {
-  apiKey: "VNESI_API_KEY",
-  authDomain: "VNESI_PROJECT.firebaseapp.com",
-  databaseURL: "https://VNESI_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "VNESI_PROJECT",
-  storageBucket: "VNESI_PROJECT.appspot.com",
-  messagingSenderId: "VNESI_SENDER_ID",
-  appId: "VNESI_APP_ID"
+  apiKey: "AIzaSyB7X070dv_BEjvYQZ0_tMDBdSs75m2QnPM",
+  authDomain: "sergej-73634.firebaseapp.com",
+  databaseURL: "https://sergej-73634-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "sergej-73634",
+  storageBucket: "sergej-73634.firebasestorage.app",
+  messagingSenderId: "165806339404",
+  appId: "1:165806339404:web:dd719aae84c633c6d2cbe9",
+  measurementId: "G-9H43NT0CN5"
 };
 
-let db = null;
-try {
-  if(firebaseConfig.apiKey !== "VNESI_API_KEY"){
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
+let firebaseDB=null;
+let firebaseUser=null;
+let activeRoom=null;
+let activeRole=null;
+let roomRef=null;
+let roomCallback=null;
+let currentRoomData=null;
+let tournamentResultShown=false;
+
+function openTournament() {
+  stopClock();
+  hideScreens();
+  $("tournamentPanel").classList.remove("hidden");
+  connectFirebase();
+}
+
+function configIsReady() {
+  return firebaseConfig.apiKey!=="ВНЕСИ_API_KEY" &&
+    firebaseConfig.projectId!=="ТВОЈ-ПРОЕКТ" &&
+    firebaseConfig.appId!=="ВНЕСИ_APP_ID";
+}
+
+async function connectFirebase() {
+  const status=$("connectionStatus");
+
+  if(!configIsReady()){
+    status.textContent=
+      "Онлајн турнирот бара Firebase конфигурација. Самостојната игра е подготвена и работи без неа.";
+    return;
   }
-} catch(e) {
-  console.log("Firebase не е конфигуриран:",e);
+
+  try{
+    if(!window.firebase){
+      status.textContent="Firebase библиотеките не се вчитани.";
+      return;
+    }
+
+    if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+
+    firebaseDB=firebase.database();
+    const auth=firebase.auth();
+
+    if(auth.currentUser){
+      firebaseUser=auth.currentUser;
+    }else{
+      const result=await auth.signInAnonymously();
+      firebaseUser=result.user;
+    }
+
+    status.textContent="Поврзано! Можеш да создадеш соба или да се приклучиш.";
+  }catch(error){
+    status.textContent="Грешка при поврзување: "+error.message;
+  }
 }
 
-const $ = id => document.getElementById(id);
-const screens = ["home","levelScreen","game","tournament"];
+function readyForOnline() {
+  if(!configIsReady() || !firebaseDB || !firebaseUser){
+    alert("Firebase не е поврзан. Провери ја конфигурацијата и интернет-врската.");
+    return false;
+  }
+  return true;
+}
 
-function show(id){
-  screens.forEach(s=>$(s).classList.add("hidden"));
-  $(id).classList.remove("hidden");
+function randomRoomCode() {
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code="";
+  for(let i=0;i<6;i++){
+    code+=chars[Math.floor(Math.random()*chars.length)];
+  }
+  return code;
 }
-function goHome(){clearInterval(timer);show("home");updateHome()}
-function updateHome(){
-  $("points").textContent=progress.points;
-  $("unlocked").textContent=progress.level;
-  $("maxLevel").textContent=progress.level;
-  $("homeLevel").textContent=progress.level;
-}
-let progress;
-try{
-  progress=JSON.parse(localStorage.getItem("quizMasterProgress"))||{level:1,points:0};
-}catch(e){progress={level:1,points:0}}
-progress.level=Math.max(1,Math.min(500,Number(progress.level)||1));
-progress.points=Math.max(0,Number(progress.points)||0);
-function save(){
-  localStorage.setItem("quizMasterProgress",JSON.stringify(progress));
-  updateHome();
-}
-updateHome();
 
-const banks = {
-"Математика":[
-["Колку е 12 + 8?", "20",["18","22","24"]],
-["Колку е 9 × 7?", "63",["56","72","69"]],
-["Колку е 144 ÷ 12?", "12",["14","10","16"]],
-["Колку е квадратниот корен од 81?", "9",["8","7","6"]],
-["Колку е 15 × 15?", "225",["215","235","250"]]
-],
-"Географија":[
-["Кој е главен град на Франција?","Париз",["Рим","Мадрид","Берлин"]],
-["Која е најголемата океанска површина?","Тихи Океан",["Атлантски Океан","Индиски Океан","Арктички Океан"]],
-["На кој континент се наоѓа Египет?","Африка",["Европа","Азија","Јужна Америка"]],
-["Која е највисоката планина во светот?","Еверест",["К2","Монблан","Килиманџаро"]],
-["Кој е главен град на Јапонија?","Токио",["Осака","Кјото","Нагоја"]]
-],
-"Спорт":[
-["Колку играчи има еден фудбалски тим на терен?","11",["10","12","9"]],
-["Колку кошеви вреди слободно фрлање во кошарка?","1",["2","3","4"]],
-["Во кој спорт се користи рекет?","Тенис",["Фудбал","Пливање","Бокс"]],
-["Колку прстени има олимпискиот симбол?","5",["4","6","7"]],
-["Колку минути трае едно полувреме во фудбал?","45",["40","50","60"]]
-],
-"Наука":[
-["Која планета е најблиску до Сонцето?","Меркур",["Венера","Земја","Марс"]],
-["Кој гас го вдишуваат луѓето за живот?","Кислород",["Азот","Јаглерод диоксид","Водород"]],
-["Која е хемиската формула на водата?","H₂O",["CO₂","O₂","NaCl"]],
-["Колку коски има возрасен човек приближно?","206",["186","216","226"]],
-["Кој орган ја пумпа крвта?","Срце",["Бели дробови","Мозок","Црн дроб"]]
-],
-"Македонски јазик":[
-["Кој збор е именка?","Книга",["Убаво","Трча","Брзо"]],
-["Кој збор е глагол?","Пишува",["Маса","Син","Убав"]],
-["Која е множина од зборот „човек“?","Луѓе",["Човеци","Човека
+function playerName(id,fallback) {
+  return String($(id).value||"").trim().slice(0,18)||fallback;
+}
+
+async function createRoom() {
+  if(!readyForOnline())return;
+
+  try{
+    const name=playerName("hostName","Играч 1");
+    let code=randomRoomCode();
+    let ref=firebaseDB.ref("quizRooms/"+code);
+    let snap=await ref.get();
+
+    while(snap.exists()){
+      code=randomRoomCode();
+      ref=firebaseDB.ref("quizRooms/"+code);
+      snap=await ref.get();
+    }
+
+    activeRoom=code;
+    activeRole="host";
+    tournamentResultShown=false;
+
+    const sharedQuestions=createQuestions(1);
+
+    await ref.set({
+      status:"waiting",
+      hostUid:firebaseUser.uid,
+      guestUid:"",
+      createdAt:firebase.database.ServerValue.TIMESTAMP,
+      questions:sharedQuestions,
+      players:{
+        host:{
+          uid:firebaseUser.uid,
+          name:name,
+          score:0,
+          progress:0,
+          finished:false
+        }
+      }
+    });
+
+    $("roomArea").classList.remove("hidden");
+    $("roomCodeDisplay").textContent=code;
+    $("roomStatusText").textContent=
+      "Испрати го овој код на пријателот. Чекаме да се приклучи.";
+    $("startTournamentButton").classList.remove("hidden");
+
+    watchRoom();
+  }catch(error){
+    alert("Не успеа создавањето на собата: "+error.message);
+  }
+}
+
+async function joinRoom() {
+  if(!readyForOnline())return;
+
+  const code=$("roomCodeInput").value.trim().toUpperCase();
+  if(!/^[A-Z0-9]{6}$/.test(code)){
+    alert("Кодот мора да содржи 6 знаци.");
+    return;
+  }
+
+  try{
+    const ref=firebaseDB.ref("quizRooms/"+code);
+    const name=playerName("guestName","Играч 2");
+
+    const result=await ref.transaction(room=>{
+      if(!room || room.status!=="waiting" || room.guestUid)return;
+      if(room.hostUid===firebaseUser.uid)return;
+
+      room.guestUid=firebaseUser.uid;
+      room.players=room.players||{};
+      room.players.guest={
+        uid:firebaseUser.uid,
+        name:name,
+        score:0,
+        progress:0,
+        finished:false
+      };
+      return room;
+    });
+
+    if(!result.committed){
+      alert("Собата не постои, е полна или турнирот веќе започнал.");
+      return;
+    }
+
+    activeRoom=code;
+    activeRole="guest";
+    tournamentResultShown=false;
+
+    $("roomArea").classList.remove("hidden");
+    $("roomCodeDisplay").textContent=code;
+    $("roomStatusText").textContent="Успешно приклучување. Чекаме да започне домаќинот.";
+    $("startTournamentButton").classList.add("hidden");
+
+    watchRoom();
+  }catch(error){
+    alert("Не успеа приклучувањето: "+error.message);
+  }
+}
+
+function watchRoom() {
+  if(!activeRoom)return;
+
+  if(roomRef && roomCallback){
+    roomRef.off("value",roomCallback);
+  }
+
+  roomRef=firebaseDB.ref("quizRooms/"+activeRoom);
+
+  roomCallback=snapshot=>{
+    if(!snapshot.exists()){
+      $("roomStatusText").textContent="Собата е избришана.";
+      return;
+    }
+
+    currentRoomData=snapshot.val();
+    renderRoomPlayers();
+
+    if(currentRoomData.status==="playing" &&
+       $("gamePanel").classList.contains("hidden") &&
+       !tournamentResultShown){
+      beginTournament();
+    }
+
+    const players=currentRoomData.players||{};
+    const hostDone=!!(players.host && players.host.finished);
+    const guestDone=!!(players.guest && players.guest.finished);
+
+    if(hostDone && guestDone){
+      if(currentRoomData.status!=="finished" && activeRole==="host"){
+        roomRef.update({status:"finished"}).catch(console.error);
+      }
+      displayTournamentResult(currentRoomData);
+    }
+
+    if(currentRoomData.status==="closed"){
+      $("roomStatusText").textContent="Домаќинот ја затвори собата.";
+    }
+  };
+
+  roomRef.on("value",roomCallback);
+}
+
+function renderRoomPlayers() {
+  if(!currentRoomData)return;
+
+  const players=currentRoomData.players||{};
+  const roles=["host","guest"];
+  let html="";
+
+  roles.forEach(role=>{
+    const p=players[role];
+    if(!p){
+      html+='<div class="player"><span>Играч 2</span><b>Чекаме...</b></div>';
+      return;
+    }
+
+    html+='<div class="player"><span>'+
+      safeText(p.name)+'</span><b>'+
+      (p.finished?"Заврши":"Во игра")+
+      " • "+(p.score||0)+" поени</b></div>";
+  });
+
+  $("playersList").innerHTML=html;
+
+  if(currentRoomData.status==="waiting" && currentRoomData.guestUid){
+    $("roomStatusText").textContent="Двајцата играчи се подготвени.";
+    if(activeRole==="host"){
+      $("startTournamentButton").classList.remove("hidden");
+    }
+  }
+}
+
+function safeText(value) {
+  return String(value).replace(/[&<>"']/g,ch=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[ch]);
+}
+
+async function startTournament() {
+  if(!readyForOnline() || activeRole!=="host" || !activeRoom)return;
+
+  try{
+    const ref=firebaseDB.ref("quizRooms/"+activeRoom);
+    const result=await ref.transaction(room=>{
+      if(!room || room.status!=="waiting" || !room.guestUid)return;
+      room.status="playing";
+       room.startedAt = firebase.database.ServerValue.TIMESTAMP;
+      return room;
+    });
+
+    if (!result.committed) {
+      $("roomStatusText").textContent =
+        "Не може да започне турнирот. Провери дали двајцата играчи се во собата.";
+      return;
+    }
+
+    $("roomStatusText").textContent = "Турнирот започнува!";
+  } catch (error) {
+    console.error("Tournament start error:", error);
+    $("roomStatusText").textContent =
+      "Грешка при започнување на турнирот: " + error.message;
+  }
+}
+      </script>
+</body>
+</html>
