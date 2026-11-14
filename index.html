@@ -35,7 +35,7 @@ input{width:90%;max-width:350px}
 </div>
 
 <script>
-const $ = id => document.getElementById(id);
+const $ = id => document.getElementById(id.replace(/^#/, ""));
 let level = 1, points = 0, questionIndex = 0, questions = [];
 let timeLeft = 25, timer = null, locked = false;
 let tournament = false, totalQuestions = 15;
