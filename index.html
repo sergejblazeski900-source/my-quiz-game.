@@ -119,8 +119,8 @@ const english=[
  ["Кој збор е спротивен на „hot“?","Cold",["Warm","Fast","Tall"]]
 ];
 
-function makeQuestion(l){
- let t=tier(l), c=rand(8);
+function makeQuestion(level){
+ let t=tier(level), c=rand(8);
  if(c===0){
   let a=rand(10*t+10)+1,b=rand(10*t+10)+1;
   let op=rand(2)===0?"+":"×";
