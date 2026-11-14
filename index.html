@@ -160,4 +160,27 @@ function startLevel(){
 }
 
 function showLevels(){
- let html=`<h2>Избери ниво</h2><p>Отклучено до ниво ${level}</p><div style="display:grid;grid-template-columns:r
+  clearInterval(timer);
+  let html = `<h2>Избери ниво</h2>
+  <p>Отклучено до ниво ${level}</p>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">`;
+
+  for(let i=1;i<=500;i++){
+    html += `<button
+      ${i>level ? "disabled" : ""}
+      onclick="level=${i};startLevel()"
+      style="padding:12px;margin:3px;">
+      ${i}
+    </button>`;
+  }
+
+  html += `</div>
+  <button onclick="showHome()">Назад</button>`;
+
+  $("#screen").innerHTML=html;
+}
+
+showHome();
+</script>
+</body>
+</html>
