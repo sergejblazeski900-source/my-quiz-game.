@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Master</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#071b55,#174fc0);color:white;min-height:100vh;padding:18px}
+.container{max-width:850px;margin:25px auto;background:#192d68;padding:25px;border-radius:20px;box-shadow:0 10px 35px #0006}
+h1{text-align:center;color:#ffe45c;font-size:34px}
+h2{text-align:center}
+button,input{font-size:17px;border:0;border-radius:12px;padding:14px;margin:6px}
+button{background:#ffe45c;color:#17234c;font-weight:bold;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.menu button{display:block;width:100%;margin:12px 0}
+.stats{display:flex;justify-content:space-between;gap:10px;background:#101f50;padding:14px;border-radius:12px;flex-wrap:wrap}
+.hidden{display:none!important}
+.answers button{display:block;width:100%;text-align:left;background:#31569b;color:white}
+.answers button.correct{background:#168b58}
+.answers button.wrong{background:#b83250}
+#timer{height:12px;background:#40527d;border-radius:20px;overflow:hidden;margin:15px 0}
+#bar{height:100%;width:100%;background:#ffe45c;transition:width 1s linear}
+.small{color:#c6d5ff;font-size:14px;text-align:center}
+.levels{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.levels button{padding:10px 2px;margin:0}
+.levels button.locked{background:#69738e;color:#ddd}
+input{width:100%;max-width:100%;background:white;color:#111}
+.panel{background:#102252;padding:18px;border-radius:14px;margin:12px 0}
+#message{text-align:center;min-height:25px;color:#ffe45c}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🏆 QUIZ MASTER</h1>
+
+<div id="home">
+<div class="stats">
+<span>⭐ Поени: <b id="points">0</b></span>
+<span>🔓 Отклучено ниво: <b id="unlocked">1</b>/500</span>
+</div>
+<div class="menu">
+<button onclick="startLevel(progress.level)">🎮 ИГРАЈ НИВО <span id="homeLevel">1</span></button>
+<button onclick="showLevels()">📚 ИЗБЕРИ НИВО</button>
+<button onclick="showTournament()">🏆 ТУРНИР 1 НА 1</button>
+</div>
+<p class="small">8 категории • 4 одговори • 25 секунди по прашање</p>
+</div>
+
+<div id="levelScreen" class="hidden">
+<h2>Избери ниво</h2>
+<p class="small">Отклучено до ниво <span id="maxLevel">1</span></p>
+<div class="levels" id="levelGrid"></div>
+<button onclick="goHome()">⬅ Назад</button>
+</div>
+
+<div id="game" class="hidden">
+<div class="stats">
+<span>Ниво: <b id="levelNumber">1</b></span>
+<span>Прашање: <b id="questionNumber">1</b>/15</span>
+<span>Поени: <b id="gamePoints">0</b></span>
+</div>
+<div id="timer"><div id="bar"></div></div>
+<p id="category" class="small"></p>
+<h2 id="question">Прашање</h2>
+<div class="answers" id="answers"></div>
+<p id="message"></p>
+<button id="nextButton" class="hidden" onclick="nextQuestion()">Следно ➜</button>
+<button onclick="goHome()">Излез</button>
+</div>
+
+<div id="tournament" class="hidden">
+<h2>🏆 Турнир 1 на 1</h2>
+<div class="panel">
+<h3>Креирај турнир</h3>
+<input id="playerName" placeholder="Твоето име">
+<button onclick="createRoom()">КРЕИРАЈ ТУРНИР</button>
+<p id="createdCode"></p>
+</div>
+<div class="panel">
+<h3>Приклучи се на турнир</h3>
+<input id="joinName" placeholder="Твоето име">
+<input id="roomCode" placeholder="Внеси код од другарот">
+<button onclick="joinRoom()">ПРИКЛУЧИ СЕ</button>
+</div>
+<p id="tournamentMessage"></p>
+<button onclick="goHome()">⬅ Назад</button>
+</div>
+</div>
+
+<!-- Firebase е потребен за турнир преку интернет -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+/*
+  ЗА ОНЛАЈН ТУРНИР:
+  Внеси ги своите Firebase податоци во firebaseConfig подолу.
+  Без нив, играта за едно лице работи, но турнирот преку интернет нема да работи.
+*/
+const firebaseConfig = {
+  apiKey: "VNESI_API_KEY",
+  authDomain: "VNESI_PROJECT.firebaseapp.com",
+  databaseURL: "https://VNESI_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "VNESI_PROJECT",
+  storageBucket: "VNESI_PROJECT.appspot.com",
+  messagingSenderId: "VNESI_SENDER_ID",
+  appId: "VNESI_APP_ID"
+};
+
+let db = null;
+try {
+  if(firebaseConfig.apiKey !== "VNESI_API_KEY"){
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+  }
+} catch(e) {
+  console.log("Firebase не е конфигуриран:",e);
+}
+
+const $ = id => document.getElementById(id);
+const screens = ["home","levelScreen","game","tournament"];
+
+function show(id){
+  screens.forEach(s=>$(s).classList.add("hidden"));
+  $(id).classList.remove("hidden");
+}
+function goHome(){clearInterval(timer);show("home");updateHome()}
+function updateHome(){
+  $("points").textContent=progress.points;
+  $("unlocked").textContent=progress.level;
+  $("maxLevel").textContent=progress.level;
+  $("homeLevel").textContent=progress.level;
+}
+let progress;
+try{
+  progress=JSON.parse(localStorage.getItem("quizMasterProgress"))||{level:1,points:0};
+}catch(e){progress={level:1,points:0}}
+progress.level=Math.max(1,Math.min(500,Number(progress.level)||1));
+progress.points=Math.max(0,Number(progress.points)||0);
+function save(){
+  localStorage.setItem("quizMasterProgress",JSON.stringify(progress));
+  updateHome();
+}
+updateHome();
+
+const banks = {
+"Математика":[
+["Колку е 12 + 8?", "20",["18","22","24"]],
+["Колку е 9 × 7?", "63",["56","72","69"]],
+["Колку е 144 ÷ 12?", "12",["14","10","16"]],
+["Колку е квадратниот корен од 81?", "9",["8","7","6"]],
+["Колку е 15 × 15?", "225",["215","235","250"]]
+],
+"Географија":[
+["Кој е главен град на Франција?","Париз",["Рим","Мадрид","Берлин"]],
+["Која е најголемата океанска површина?","Тихи Океан",["Атлантски Океан","Индиски Океан","Арктички Океан"]],
+["На кој континент се наоѓа Египет?","Африка",["Европа","Азија","Јужна Америка"]],
+["Која е највисоката планина во светот?","Еверест",["К2","Монблан","Килиманџаро"]],
+["Кој е главен град на Јапонија?","Токио",["Осака","Кјото","Нагоја"]]
+],
+"Спорт":[
+["Колку играчи има еден фудбалски тим на терен?","11",["10","12","9"]],
+["Колку кошеви вреди слободно фрлање во кошарка?","1",["2","3","4"]],
+["Во кој спорт се користи рекет?","Тенис",["Фудбал","Пливање","Бокс"]],
+["Колку прстени има олимпискиот симбол?","5",["4","6","7"]],
+["Колку минути трае едно полувреме во фудбал?","45",["40","50","60"]]
+],
+"Наука":[
+["Која планета е најблиску до Сонцето?","Меркур",["Венера","Земја","Марс"]],
+["Кој гас го вдишуваат луѓето за живот?","Кислород",["Азот","Јаглерод диоксид","Водород"]],
+["Која е хемиската формула на водата?","H₂O",["CO₂","O₂","NaCl"]],
+["Колку коски има возрасен човек приближно?","206",["186","216","226"]],
+["Кој орган ја пумпа крвта?","Срце",["Бели дробови","Мозок","Црн дроб"]]
+],
+"Македонски јазик":[
+["Кој збор е именка?","Книга",["Убаво","Трча","Брзо"]],
+["Кој збор е глагол?","Пишува",["Маса","Син","Убав"]],
+["Која е множина од зборот „човек“?","Луѓе",["Човеци","Човека
